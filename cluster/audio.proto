@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+message TextChunk {
+    string content = 1;
+}
+
+message Audio {
+    bytes data = 1;
+}
+
+service AudioGenerationService {
+    rpc GenerateAudio(TextChunk) returns (Audio);
+}
