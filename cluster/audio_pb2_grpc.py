@@ -16,7 +16,7 @@ class AudioGenerationServiceStub(object):
         """
         self.GenerateAudio = channel.unary_unary(
                 '/AudioGenerationService/GenerateAudio',
-                request_serializer=audio__pb2.TextChunk.SerializeToString,
+                request_serializer=audio__pb2.Requirement.SerializeToString,
                 response_deserializer=audio__pb2.Audio.FromString,
                 )
 
@@ -35,7 +35,7 @@ def add_AudioGenerationServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GenerateAudio': grpc.unary_unary_rpc_method_handler(
                     servicer.GenerateAudio,
-                    request_deserializer=audio__pb2.TextChunk.FromString,
+                    request_deserializer=audio__pb2.Requirement.FromString,
                     response_serializer=audio__pb2.Audio.SerializeToString,
             ),
     }
@@ -60,7 +60,7 @@ class AudioGenerationService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/AudioGenerationService/GenerateAudio',
-            audio__pb2.TextChunk.SerializeToString,
+            audio__pb2.Requirement.SerializeToString,
             audio__pb2.Audio.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

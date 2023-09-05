@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0b\x61udio.proto\"\x1c\n\tTextChunk\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\"\x15\n\x05\x41udio\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x32=\n\x16\x41udioGenerationService\x12#\n\rGenerateAudio\x12\n.TextChunk\x1a\x06.Audiob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0b\x61udio.proto\"/\n\x0bRequirement\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\x0f\n\x07speaker\x18\x02 \x01(\t\"\x15\n\x05\x41udio\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x32?\n\x16\x41udioGenerationService\x12%\n\rGenerateAudio\x12\x0c.Requirement\x1a\x06.Audiob\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -21,10 +21,10 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'audio_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _globals['_TEXTCHUNK']._serialized_start=15
-  _globals['_TEXTCHUNK']._serialized_end=43
-  _globals['_AUDIO']._serialized_start=45
-  _globals['_AUDIO']._serialized_end=66
-  _globals['_AUDIOGENERATIONSERVICE']._serialized_start=68
-  _globals['_AUDIOGENERATIONSERVICE']._serialized_end=129
+  _globals['_REQUIREMENT']._serialized_start=15
+  _globals['_REQUIREMENT']._serialized_end=62
+  _globals['_AUDIO']._serialized_start=64
+  _globals['_AUDIO']._serialized_end=85
+  _globals['_AUDIOGENERATIONSERVICE']._serialized_start=87
+  _globals['_AUDIOGENERATIONSERVICE']._serialized_end=150
 # @@protoc_insertion_point(module_scope)
