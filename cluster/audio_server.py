@@ -6,12 +6,19 @@ import audio_pb2_grpc
 from bark import generate_audio, preload_models
 import pickle
 import argparse
+import os
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
+
+TOKEN = os.getenv("TOKEN")
 
 
 class AudioGenerationServicer(audio_pb2_grpc.AudioGenerationServiceServicer):
     def GenerateAudio(self, request, context):
+        if request.token != TOKEN:
+            print("wrong token, ", request.token)
+            return audio_pb2.Audio(error="not valid")
+
         text = request.content
         print("received : ", text)
         audio = generate_audio(text, history_prompt=request.speaker)

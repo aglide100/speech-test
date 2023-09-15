@@ -1,0 +1,17 @@
+version: "3"
+services:
+    server:
+        build: .
+        container_name: server
+        hostname: server
+        networks:
+            - docker_network
+        ports:
+            - 50052:50052
+        environment:
+            - TOKEN=test
+        command: python3 audio_server.py
+
+networks:
+    docker_network:
+        driver: bridge

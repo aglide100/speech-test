@@ -3,10 +3,12 @@ syntax = "proto3";
 message Requirement {
     string content = 1;
     string speaker = 2;
+    string token = 3;
 }
 
 message Audio {
     bytes data = 1;
+    string error = 2;
 }
 
 service AudioGenerationService {

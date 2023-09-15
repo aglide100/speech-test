@@ -1,0 +1,19 @@
+version: "3"
+services:
+    client:
+        build: .
+        container_name: client
+        networks:
+            - docker_network
+        volumes:
+            - ./output:/output
+        environment:
+            - TOKEN=test
+            - NODE_ADDRESS=server:50052
+            - SPEAKER=v2/en_speaker_7
+            - TEXT=hello
+        command: python3 audio_client.py
+
+networks:
+    docker_network:
+        driver: bridge

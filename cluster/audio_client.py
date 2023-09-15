@@ -11,12 +11,18 @@ import threading
 import queue
 import time
 import multiprocessing
+import os
 
-node_addresses = ['0.0.0.0:50052', '192.168.0.72:50053']
+
+address = os.getenv("NODE_ADDRESS")
+node_addresses = address.split(",")
+
 node_status = {address: False for address in node_addresses}
 
-output_file = "en_speaker_7.wav"
-speaker = "v2/en_speaker_7"
+output_file = "./output/en_speaker_7.wav"
+speaker = os.getenv("SPEAKER")
+
+token = os.getenv("TOKEN")
 
 
 def set_node_status(address, is_busy):
@@ -45,7 +51,7 @@ def divide_text_into_sentences(text):
 
 def generate_audio(text_chunk, speaker, stub, node_address):
     response = stub.GenerateAudio(audio_pb2.Requirement(
-        content=text_chunk, speaker=speaker))
+        content=text_chunk, speaker=speaker, token=token))
     set_node_status(node_address, is_busy=False)
     return response.data
 
@@ -63,9 +69,18 @@ def assign_work_to_node(sentence, speaker, idx, avail_node, results, result_lock
         running_threads.pop()
         result_lock.release()
     except grpc.RpcError:
-        print(f"Node at {node_address} is not available.")
-        assign_work_to_node(sentence, idx, avail_node,
-                            results, result_lock, running_threads)
+        print(
+            f"Node at {node_address} is not available. Retrying with another node.")
+        avail_node.put(node_address)
+        if avail_node.qsize() > 0:
+            assign_work_to_node(sentence, speaker, idx, avail_node,
+                                results, result_lock, running_threads)
+        else:
+            print("No available nodes. Waiting for a node to become available.")
+            while avail_node.qsize() <= 0:
+                time.sleep(1)
+            assign_work_to_node(sentence, speaker, idx, avail_node,
+                                results, result_lock, running_threads)
         return
 
     set_node_status(node_address, is_busy=False)
@@ -76,8 +91,7 @@ def main():
     stubs = generate_audio_stubs()
 
     print(stubs)
-
-    text = """I'm Sarah, a perpetual explorer of life's possibilities! You might hear me chuckling [laughs], or maybe even humming a tune as I dive into creative endeavors. My days are a symphony of curiosity and learning, from coding projects to culinary experiments. Sometimes I break into spontaneous dance moves, and when I'm deep in thought, you might catch me going "hmm" [thoughtful sound]. Adventure calls my name, whether it's through thrilling books or outdoor escapades. My camera is my constant companion, capturing both breathtaking landscapes and candid moments. [clears throat] Life's a canvas, and I'm here to paint it with bold strokes!"""
+    text = os.getenv("TEXT")
     manager = multiprocessing.Manager()
     results = manager.dict()
     result_lock = manager.Lock()
