@@ -1,5 +1,7 @@
 FROM python:3.10
 
+WORKDIR /app
+
 RUN python -m pip install --upgrade pip
 
 RUN python -m pip install grpcio nltk

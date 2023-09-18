@@ -6,6 +6,8 @@ services:
         hostname: server
         networks:
             - docker_network
+        volumes:
+            - ./cache:/app/.cache
         ports:
             - 50052:50052
         environment:

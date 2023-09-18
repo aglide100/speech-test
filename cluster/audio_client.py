@@ -14,6 +14,12 @@ import multiprocessing
 import os
 
 
+options = [
+    ('grpc.keepalive_time_ms', 900000),
+    ('grpc.keepalive_permit_without_calls', True)
+]
+
+
 address = os.getenv("NODE_ADDRESS")
 node_addresses = address.split(",")
 
@@ -38,7 +44,7 @@ def print_node_status():
 def generate_audio_stubs():
     stubs = []
     for address in node_addresses:
-        channel = grpc.insecure_channel(address)
+        channel = grpc.insecure_channel(address, options=options)
         stub = audio_pb2_grpc.AudioGenerationServiceStub(channel)
         stubs.append((address, stub))
     return stubs
