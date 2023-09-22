@@ -25,7 +25,8 @@ node_addresses = address.split(",")
 
 node_status = {address: False for address in node_addresses}
 
-output_file = "./output/en_speaker_7.wav"
+# output_file = "./output/en_speaker_7.wav"
+output_file = os.getenv("PATH")
 speaker = os.getenv("SPEAKER")
 
 token = os.getenv("TOKEN")

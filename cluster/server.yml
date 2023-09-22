@@ -7,7 +7,7 @@ services:
         networks:
             - docker_network
         volumes:
-            - ./cache:/app/.cache
+            - ~/.cache:/root/.cache
         ports:
             - 50052:50052
         environment:
