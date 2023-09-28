@@ -1,6 +1,6 @@
 import grpc
-import audio_pb2
-import audio_pb2_grpc
+import pb.svc.audio.audio_pb2 as audio_pb2
+import pb.svc.audio.audio_pb2_grpc as audio_pb2_grpc
 from scipy.io import wavfile
 import numpy as np
 import pickle

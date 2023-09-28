@@ -1,0 +1,41 @@
+syntax = "proto3";
+option go_package = "github.com/aglide100/speech-test/cluster/pb/svc/audio";
+
+message Requirement {
+    string content = 1;
+    string speaker = 2;
+    string token = 3;
+}
+
+message Audio {
+    bytes data = 1;
+    string error = 2;
+}
+
+message Request {
+    Auth auth = 1;
+    string content = 2;
+    string speaker = 3;
+    string path = 4;
+}
+
+message Auth {
+    string token = 1;
+    string from = 2;
+}
+
+message Job {
+    string content = 1;
+    string speacker = 2;
+}
+
+message Checking {
+    Auth auth = 1;
+}
+
+service AudioGenerationService {
+    rpc GenerateAudio(Requirement) returns (Audio);
+    rpc MakingNewJob(Request) returns (Audio);
+    rpc CheckingJob(Checking) returns (Job);
+    rpc SendingResult(Audio) returns (Job);
+}

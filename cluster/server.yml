@@ -6,14 +6,14 @@ services:
         hostname: server
         networks:
             - docker_network
-        #volumes:
-        # - ~/.cache:/root/.cache
+        volumes:
+         - ~/.cache:/root/.cache
         ports:
             - 50052:50052
         environment:
             - TOKEN=test
-            - SUNO_OFFLOAD_CPU=True
-            - SUNO_USE_SMALL_MODELS=True
+            #- SUNO_OFFLOAD_CPU=True
+            #- SUNO_USE_SMALL_MODELS=True
         command: python3 audio_server.py
 
 networks:
