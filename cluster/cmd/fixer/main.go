@@ -9,11 +9,16 @@ import (
 	"os"
 	"sync"
 
+	pb_svc_audio "github.com/aglide100/speech-test/cluster/pb/svc/audio"
+
+	"github.com/aglide100/speech-test/cluster/pkg/queue"
+	"github.com/aglide100/speech-test/cluster/pkg/svc/audio"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 )
 var (
 	managerAddr = flag.String("manager grpc addr", "0.0.0.0:50012", "grpc address")
+	token = flag.String("token", "test", "using for auth")
 )
 
 func main() {
@@ -32,10 +37,13 @@ func realMain() error {
 
 	var wait sync.WaitGroup
 	wait.Add(1)
+	queue := queue.NewJobQueue(100)
 
+	audioSrv := audio.NewAudioServiceServer(queue, *token)
 	var opts []grpc.ServerOption
 
 	grpcServer := grpc.NewServer(opts...)
+	pb_svc_audio.RegisterAudioServiceServer(grpcServer, audioSrv)
 
 	wg, _ := errgroup.WithContext(context.Background())
 

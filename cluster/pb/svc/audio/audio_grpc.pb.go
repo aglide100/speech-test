@@ -19,201 +19,200 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AudioGenerationService_GenerateAudio_FullMethodName = "/AudioGenerationService/GenerateAudio"
-	AudioGenerationService_MakingNewJob_FullMethodName  = "/AudioGenerationService/MakingNewJob"
-	AudioGenerationService_CheckingJob_FullMethodName   = "/AudioGenerationService/CheckingJob"
-	AudioGenerationService_SendingResult_FullMethodName = "/AudioGenerationService/SendingResult"
+	AudioService_GenerateAudio_FullMethodName = "/AudioService/GenerateAudio"
+	AudioService_MakingNewJob_FullMethodName  = "/AudioService/MakingNewJob"
+	AudioService_CheckingJob_FullMethodName   = "/AudioService/CheckingJob"
+	AudioService_SendingResult_FullMethodName = "/AudioService/SendingResult"
 )
 
-// AudioGenerationServiceClient is the client API for AudioGenerationService service.
+// AudioServiceClient is the client API for AudioService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type AudioGenerationServiceClient interface {
+type AudioServiceClient interface {
 	GenerateAudio(ctx context.Context, in *Requirement, opts ...grpc.CallOption) (*Audio, error)
 	MakingNewJob(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Audio, error)
 	CheckingJob(ctx context.Context, in *Checking, opts ...grpc.CallOption) (*Job, error)
 	SendingResult(ctx context.Context, in *Audio, opts ...grpc.CallOption) (*Job, error)
 }
 
-type audioGenerationServiceClient struct {
+type audioServiceClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewAudioGenerationServiceClient(cc grpc.ClientConnInterface) AudioGenerationServiceClient {
-	return &audioGenerationServiceClient{cc}
+func NewAudioServiceClient(cc grpc.ClientConnInterface) AudioServiceClient {
+	return &audioServiceClient{cc}
 }
 
-func (c *audioGenerationServiceClient) GenerateAudio(ctx context.Context, in *Requirement, opts ...grpc.CallOption) (*Audio, error) {
+func (c *audioServiceClient) GenerateAudio(ctx context.Context, in *Requirement, opts ...grpc.CallOption) (*Audio, error) {
 	out := new(Audio)
-	err := c.cc.Invoke(ctx, AudioGenerationService_GenerateAudio_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AudioService_GenerateAudio_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *audioGenerationServiceClient) MakingNewJob(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Audio, error) {
+func (c *audioServiceClient) MakingNewJob(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Audio, error) {
 	out := new(Audio)
-	err := c.cc.Invoke(ctx, AudioGenerationService_MakingNewJob_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AudioService_MakingNewJob_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *audioGenerationServiceClient) CheckingJob(ctx context.Context, in *Checking, opts ...grpc.CallOption) (*Job, error) {
+func (c *audioServiceClient) CheckingJob(ctx context.Context, in *Checking, opts ...grpc.CallOption) (*Job, error) {
 	out := new(Job)
-	err := c.cc.Invoke(ctx, AudioGenerationService_CheckingJob_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AudioService_CheckingJob_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *audioGenerationServiceClient) SendingResult(ctx context.Context, in *Audio, opts ...grpc.CallOption) (*Job, error) {
+func (c *audioServiceClient) SendingResult(ctx context.Context, in *Audio, opts ...grpc.CallOption) (*Job, error) {
 	out := new(Job)
-	err := c.cc.Invoke(ctx, AudioGenerationService_SendingResult_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AudioService_SendingResult_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// AudioGenerationServiceServer is the server API for AudioGenerationService service.
-// All implementations must embed UnimplementedAudioGenerationServiceServer
+// AudioServiceServer is the server API for AudioService service.
+// All implementations must embed UnimplementedAudioServiceServer
 // for forward compatibility
-type AudioGenerationServiceServer interface {
+type AudioServiceServer interface {
 	GenerateAudio(context.Context, *Requirement) (*Audio, error)
 	MakingNewJob(context.Context, *Request) (*Audio, error)
 	CheckingJob(context.Context, *Checking) (*Job, error)
 	SendingResult(context.Context, *Audio) (*Job, error)
-	mustEmbedUnimplementedAudioGenerationServiceServer()
+	mustEmbedUnimplementedAudioServiceServer()
 }
 
-// UnimplementedAudioGenerationServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedAudioGenerationServiceServer struct {
+// UnimplementedAudioServiceServer must be embedded to have forward compatible implementations.
+type UnimplementedAudioServiceServer struct {
 }
 
-func (UnimplementedAudioGenerationServiceServer) GenerateAudio(context.Context, *Requirement) (*Audio, error) {
+func (UnimplementedAudioServiceServer) GenerateAudio(context.Context, *Requirement) (*Audio, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateAudio not implemented")
 }
-func (UnimplementedAudioGenerationServiceServer) MakingNewJob(context.Context, *Request) (*Audio, error) {
+func (UnimplementedAudioServiceServer) MakingNewJob(context.Context, *Request) (*Audio, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MakingNewJob not implemented")
 }
-func (UnimplementedAudioGenerationServiceServer) CheckingJob(context.Context, *Checking) (*Job, error) {
+func (UnimplementedAudioServiceServer) CheckingJob(context.Context, *Checking) (*Job, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckingJob not implemented")
 }
-func (UnimplementedAudioGenerationServiceServer) SendingResult(context.Context, *Audio) (*Job, error) {
+func (UnimplementedAudioServiceServer) SendingResult(context.Context, *Audio) (*Job, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendingResult not implemented")
 }
-func (UnimplementedAudioGenerationServiceServer) mustEmbedUnimplementedAudioGenerationServiceServer() {
-}
+func (UnimplementedAudioServiceServer) mustEmbedUnimplementedAudioServiceServer() {}
 
-// UnsafeAudioGenerationServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AudioGenerationServiceServer will
+// UnsafeAudioServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AudioServiceServer will
 // result in compilation errors.
-type UnsafeAudioGenerationServiceServer interface {
-	mustEmbedUnimplementedAudioGenerationServiceServer()
+type UnsafeAudioServiceServer interface {
+	mustEmbedUnimplementedAudioServiceServer()
 }
 
-func RegisterAudioGenerationServiceServer(s grpc.ServiceRegistrar, srv AudioGenerationServiceServer) {
-	s.RegisterService(&AudioGenerationService_ServiceDesc, srv)
+func RegisterAudioServiceServer(s grpc.ServiceRegistrar, srv AudioServiceServer) {
+	s.RegisterService(&AudioService_ServiceDesc, srv)
 }
 
-func _AudioGenerationService_GenerateAudio_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AudioService_GenerateAudio_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Requirement)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AudioGenerationServiceServer).GenerateAudio(ctx, in)
+		return srv.(AudioServiceServer).GenerateAudio(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AudioGenerationService_GenerateAudio_FullMethodName,
+		FullMethod: AudioService_GenerateAudio_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AudioGenerationServiceServer).GenerateAudio(ctx, req.(*Requirement))
+		return srv.(AudioServiceServer).GenerateAudio(ctx, req.(*Requirement))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AudioGenerationService_MakingNewJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AudioService_MakingNewJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Request)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AudioGenerationServiceServer).MakingNewJob(ctx, in)
+		return srv.(AudioServiceServer).MakingNewJob(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AudioGenerationService_MakingNewJob_FullMethodName,
+		FullMethod: AudioService_MakingNewJob_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AudioGenerationServiceServer).MakingNewJob(ctx, req.(*Request))
+		return srv.(AudioServiceServer).MakingNewJob(ctx, req.(*Request))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AudioGenerationService_CheckingJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AudioService_CheckingJob_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Checking)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AudioGenerationServiceServer).CheckingJob(ctx, in)
+		return srv.(AudioServiceServer).CheckingJob(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AudioGenerationService_CheckingJob_FullMethodName,
+		FullMethod: AudioService_CheckingJob_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AudioGenerationServiceServer).CheckingJob(ctx, req.(*Checking))
+		return srv.(AudioServiceServer).CheckingJob(ctx, req.(*Checking))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AudioGenerationService_SendingResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AudioService_SendingResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Audio)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AudioGenerationServiceServer).SendingResult(ctx, in)
+		return srv.(AudioServiceServer).SendingResult(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AudioGenerationService_SendingResult_FullMethodName,
+		FullMethod: AudioService_SendingResult_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AudioGenerationServiceServer).SendingResult(ctx, req.(*Audio))
+		return srv.(AudioServiceServer).SendingResult(ctx, req.(*Audio))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// AudioGenerationService_ServiceDesc is the grpc.ServiceDesc for AudioGenerationService service.
+// AudioService_ServiceDesc is the grpc.ServiceDesc for AudioService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var AudioGenerationService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "AudioGenerationService",
-	HandlerType: (*AudioGenerationServiceServer)(nil),
+var AudioService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "AudioService",
+	HandlerType: (*AudioServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "GenerateAudio",
-			Handler:    _AudioGenerationService_GenerateAudio_Handler,
+			Handler:    _AudioService_GenerateAudio_Handler,
 		},
 		{
 			MethodName: "MakingNewJob",
-			Handler:    _AudioGenerationService_MakingNewJob_Handler,
+			Handler:    _AudioService_MakingNewJob_Handler,
 		},
 		{
 			MethodName: "CheckingJob",
-			Handler:    _AudioGenerationService_CheckingJob_Handler,
+			Handler:    _AudioService_CheckingJob_Handler,
 		},
 		{
 			MethodName: "SendingResult",
-			Handler:    _AudioGenerationService_SendingResult_Handler,
+			Handler:    _AudioService_SendingResult_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
