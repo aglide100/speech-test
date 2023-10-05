@@ -29,11 +29,11 @@ func main() {
 }
 
 func realMain() error {
-	managerListener, err := net.Listen("tcp", fmt.Sprintf(*managerAddr))
+	gprcListener, err := net.Listen("tcp", fmt.Sprintf(*managerAddr))
 	if err != nil {
 		return err
 	}
-	defer managerListener.Close()
+	defer gprcListener.Close()
 
 	var wait sync.WaitGroup
 	wait.Add(1)
@@ -49,7 +49,7 @@ func realMain() error {
 
 	wg.Go(func() error {
 		log.Printf("Starting grpcServer at: %s" ,*managerAddr)
-		err := grpcServer.Serve(managerListener)
+		err := grpcServer.Serve(gprcListener)
 		if err != nil {
 			log.Fatalf("failed to serve: %v", err)
 			return err
