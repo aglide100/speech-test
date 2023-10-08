@@ -22,7 +22,7 @@ class AudioServiceStub(object):
         self.MakingNewJob = channel.unary_unary(
                 '/AudioService/MakingNewJob',
                 request_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.Request.SerializeToString,
-                response_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.Audio.FromString,
+                response_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.Result.FromString,
                 )
         self.CheckingJob = channel.unary_unary(
                 '/AudioService/CheckingJob',
@@ -74,7 +74,7 @@ def add_AudioServiceServicer_to_server(servicer, server):
             'MakingNewJob': grpc.unary_unary_rpc_method_handler(
                     servicer.MakingNewJob,
                     request_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.Request.FromString,
-                    response_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.Audio.SerializeToString,
+                    response_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.Result.SerializeToString,
             ),
             'CheckingJob': grpc.unary_unary_rpc_method_handler(
                     servicer.CheckingJob,
@@ -126,7 +126,7 @@ class AudioService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/AudioService/MakingNewJob',
             pb_dot_svc_dot_audio_dot_audio__pb2.Request.SerializeToString,
-            pb_dot_svc_dot_audio_dot_audio__pb2.Audio.FromString,
+            pb_dot_svc_dot_audio_dot_audio__pb2.Result.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

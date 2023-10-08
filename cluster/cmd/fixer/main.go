@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"sync"
+	"time"
 
 	pb_svc_audio "github.com/aglide100/speech-test/cluster/pb/svc/audio"
 
@@ -41,6 +42,7 @@ func realMain() error {
 
 	audioSrv := audio.NewAudioServiceServer(queue, *token)
 	var opts []grpc.ServerOption
+	// rwMutex := new(sync.RWMutex)
 
 	grpcServer := grpc.NewServer(opts...)
 	pb_svc_audio.RegisterAudioServiceServer(grpcServer, audioSrv)
@@ -58,5 +60,18 @@ func realMain() error {
 		return nil
 	})
 
-	return nil
+	wg.Go(func() error {
+		duration, _ := time.ParseDuration("1s")
+		ticker := time.NewTicker(duration)
+		defer ticker.Stop()
+
+
+		for range ticker.C {
+			queue.CheckTimeOut()
+		}
+
+		return nil
+	})
+
+	return wg.Wait()
 }

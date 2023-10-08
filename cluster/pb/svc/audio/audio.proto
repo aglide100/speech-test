@@ -19,6 +19,10 @@ message Request {
     string path = 4;
 }
 
+message Result {
+    string error = 1;
+}
+
 message Auth {
     string token = 1;
     string from = 2;
@@ -26,7 +30,7 @@ message Auth {
 
 message Job {
     string content = 1;
-    string speacker = 2;
+    string speaker = 2;
 }
 
 message Checking {
@@ -35,7 +39,7 @@ message Checking {
 
 service AudioService {
     rpc GenerateAudio(Requirement) returns (Audio);
-    rpc MakingNewJob(Request) returns (Audio);
+    rpc MakingNewJob(Request) returns (Result);
     rpc CheckingJob(Checking) returns (Job);
     rpc SendingResult(Audio) returns (Job);
 }

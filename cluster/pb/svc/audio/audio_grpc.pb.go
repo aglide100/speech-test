@@ -30,7 +30,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AudioServiceClient interface {
 	GenerateAudio(ctx context.Context, in *Requirement, opts ...grpc.CallOption) (*Audio, error)
-	MakingNewJob(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Audio, error)
+	MakingNewJob(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Result, error)
 	CheckingJob(ctx context.Context, in *Checking, opts ...grpc.CallOption) (*Job, error)
 	SendingResult(ctx context.Context, in *Audio, opts ...grpc.CallOption) (*Job, error)
 }
@@ -52,8 +52,8 @@ func (c *audioServiceClient) GenerateAudio(ctx context.Context, in *Requirement,
 	return out, nil
 }
 
-func (c *audioServiceClient) MakingNewJob(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Audio, error) {
-	out := new(Audio)
+func (c *audioServiceClient) MakingNewJob(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Result, error) {
+	out := new(Result)
 	err := c.cc.Invoke(ctx, AudioService_MakingNewJob_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -84,7 +84,7 @@ func (c *audioServiceClient) SendingResult(ctx context.Context, in *Audio, opts 
 // for forward compatibility
 type AudioServiceServer interface {
 	GenerateAudio(context.Context, *Requirement) (*Audio, error)
-	MakingNewJob(context.Context, *Request) (*Audio, error)
+	MakingNewJob(context.Context, *Request) (*Result, error)
 	CheckingJob(context.Context, *Checking) (*Job, error)
 	SendingResult(context.Context, *Audio) (*Job, error)
 	mustEmbedUnimplementedAudioServiceServer()
@@ -97,7 +97,7 @@ type UnimplementedAudioServiceServer struct {
 func (UnimplementedAudioServiceServer) GenerateAudio(context.Context, *Requirement) (*Audio, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateAudio not implemented")
 }
-func (UnimplementedAudioServiceServer) MakingNewJob(context.Context, *Request) (*Audio, error) {
+func (UnimplementedAudioServiceServer) MakingNewJob(context.Context, *Request) (*Result, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MakingNewJob not implemented")
 }
 func (UnimplementedAudioServiceServer) CheckingJob(context.Context, *Checking) (*Job, error) {
