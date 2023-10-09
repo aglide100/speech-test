@@ -22,7 +22,7 @@ class AudioServiceStub(object):
         self.MakingNewJob = channel.unary_unary(
                 '/AudioService/MakingNewJob',
                 request_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.Request.SerializeToString,
-                response_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.Result.FromString,
+                response_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.Error.FromString,
                 )
         self.CheckingJob = channel.unary_unary(
                 '/AudioService/CheckingJob',
@@ -31,8 +31,8 @@ class AudioServiceStub(object):
                 )
         self.SendingResult = channel.unary_unary(
                 '/AudioService/SendingResult',
-                request_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.Audio.SerializeToString,
-                response_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.Job.FromString,
+                request_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.AudioResult.SerializeToString,
+                response_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.Error.FromString,
                 )
 
 
@@ -74,7 +74,7 @@ def add_AudioServiceServicer_to_server(servicer, server):
             'MakingNewJob': grpc.unary_unary_rpc_method_handler(
                     servicer.MakingNewJob,
                     request_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.Request.FromString,
-                    response_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.Result.SerializeToString,
+                    response_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.Error.SerializeToString,
             ),
             'CheckingJob': grpc.unary_unary_rpc_method_handler(
                     servicer.CheckingJob,
@@ -83,8 +83,8 @@ def add_AudioServiceServicer_to_server(servicer, server):
             ),
             'SendingResult': grpc.unary_unary_rpc_method_handler(
                     servicer.SendingResult,
-                    request_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.Audio.FromString,
-                    response_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.Job.SerializeToString,
+                    request_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.AudioResult.FromString,
+                    response_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.Error.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -126,7 +126,7 @@ class AudioService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/AudioService/MakingNewJob',
             pb_dot_svc_dot_audio_dot_audio__pb2.Request.SerializeToString,
-            pb_dot_svc_dot_audio_dot_audio__pb2.Result.FromString,
+            pb_dot_svc_dot_audio_dot_audio__pb2.Error.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -159,7 +159,7 @@ class AudioService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/AudioService/SendingResult',
-            pb_dot_svc_dot_audio_dot_audio__pb2.Audio.SerializeToString,
-            pb_dot_svc_dot_audio_dot_audio__pb2.Job.FromString,
+            pb_dot_svc_dot_audio_dot_audio__pb2.AudioResult.SerializeToString,
+            pb_dot_svc_dot_audio_dot_audio__pb2.Error.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

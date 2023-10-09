@@ -3,6 +3,7 @@ module github.com/aglide100/speech-test/cluster
 go 1.20
 
 require (
+	github.com/google/uuid v1.3.0
 	github.com/jdkato/prose/v2 v2.0.0
 	go.uber.org/zap v1.26.0
 	golang.org/x/sync v0.3.0

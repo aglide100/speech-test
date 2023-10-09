@@ -30,9 +30,9 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AudioServiceClient interface {
 	GenerateAudio(ctx context.Context, in *Requirement, opts ...grpc.CallOption) (*Audio, error)
-	MakingNewJob(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Result, error)
+	MakingNewJob(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Error, error)
 	CheckingJob(ctx context.Context, in *Checking, opts ...grpc.CallOption) (*Job, error)
-	SendingResult(ctx context.Context, in *Audio, opts ...grpc.CallOption) (*Job, error)
+	SendingResult(ctx context.Context, in *AudioResult, opts ...grpc.CallOption) (*Error, error)
 }
 
 type audioServiceClient struct {
@@ -52,8 +52,8 @@ func (c *audioServiceClient) GenerateAudio(ctx context.Context, in *Requirement,
 	return out, nil
 }
 
-func (c *audioServiceClient) MakingNewJob(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Result, error) {
-	out := new(Result)
+func (c *audioServiceClient) MakingNewJob(ctx context.Context, in *Request, opts ...grpc.CallOption) (*Error, error) {
+	out := new(Error)
 	err := c.cc.Invoke(ctx, AudioService_MakingNewJob_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -70,8 +70,8 @@ func (c *audioServiceClient) CheckingJob(ctx context.Context, in *Checking, opts
 	return out, nil
 }
 
-func (c *audioServiceClient) SendingResult(ctx context.Context, in *Audio, opts ...grpc.CallOption) (*Job, error) {
-	out := new(Job)
+func (c *audioServiceClient) SendingResult(ctx context.Context, in *AudioResult, opts ...grpc.CallOption) (*Error, error) {
+	out := new(Error)
 	err := c.cc.Invoke(ctx, AudioService_SendingResult_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -84,9 +84,9 @@ func (c *audioServiceClient) SendingResult(ctx context.Context, in *Audio, opts 
 // for forward compatibility
 type AudioServiceServer interface {
 	GenerateAudio(context.Context, *Requirement) (*Audio, error)
-	MakingNewJob(context.Context, *Request) (*Result, error)
+	MakingNewJob(context.Context, *Request) (*Error, error)
 	CheckingJob(context.Context, *Checking) (*Job, error)
-	SendingResult(context.Context, *Audio) (*Job, error)
+	SendingResult(context.Context, *AudioResult) (*Error, error)
 	mustEmbedUnimplementedAudioServiceServer()
 }
 
@@ -97,13 +97,13 @@ type UnimplementedAudioServiceServer struct {
 func (UnimplementedAudioServiceServer) GenerateAudio(context.Context, *Requirement) (*Audio, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateAudio not implemented")
 }
-func (UnimplementedAudioServiceServer) MakingNewJob(context.Context, *Request) (*Result, error) {
+func (UnimplementedAudioServiceServer) MakingNewJob(context.Context, *Request) (*Error, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MakingNewJob not implemented")
 }
 func (UnimplementedAudioServiceServer) CheckingJob(context.Context, *Checking) (*Job, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckingJob not implemented")
 }
-func (UnimplementedAudioServiceServer) SendingResult(context.Context, *Audio) (*Job, error) {
+func (UnimplementedAudioServiceServer) SendingResult(context.Context, *AudioResult) (*Error, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SendingResult not implemented")
 }
 func (UnimplementedAudioServiceServer) mustEmbedUnimplementedAudioServiceServer() {}
@@ -174,7 +174,7 @@ func _AudioService_CheckingJob_Handler(srv interface{}, ctx context.Context, dec
 }
 
 func _AudioService_SendingResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Audio)
+	in := new(AudioResult)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -186,7 +186,7 @@ func _AudioService_SendingResult_Handler(srv interface{}, ctx context.Context, d
 		FullMethod: AudioService_SendingResult_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AudioServiceServer).SendingResult(ctx, req.(*Audio))
+		return srv.(AudioServiceServer).SendingResult(ctx, req.(*AudioResult))
 	}
 	return interceptor(ctx, in, info, handler)
 }

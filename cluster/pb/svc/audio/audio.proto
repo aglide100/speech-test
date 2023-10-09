@@ -7,9 +7,14 @@ message Requirement {
     string token = 3;
 }
 
+message AudioResult {
+    Audio audio = 1;
+    Auth auth = 2;
+    Job job = 3;
+}
+
 message Audio {
     bytes data = 1;
-    string error = 2;
 }
 
 message Request {
@@ -19,8 +24,8 @@ message Request {
     string path = 4;
 }
 
-message Result {
-    string error = 1;
+message Error {
+    string msg = 1;
 }
 
 message Auth {
@@ -31,6 +36,7 @@ message Auth {
 message Job {
     string content = 1;
     string speaker = 2;
+    string id = 3;
 }
 
 message Checking {
@@ -39,7 +45,7 @@ message Checking {
 
 service AudioService {
     rpc GenerateAudio(Requirement) returns (Audio);
-    rpc MakingNewJob(Request) returns (Result);
+    rpc MakingNewJob(Request) returns (Error);
     rpc CheckingJob(Checking) returns (Job);
-    rpc SendingResult(Audio) returns (Job);
+    rpc SendingResult(AudioResult) returns (Error);
 }

@@ -13,7 +13,6 @@ import (
 type PriorityJobQueue struct {
 	mutex sync.RWMutex
 	queue []*Allocate
-	length int
 }
 
 type Allocate struct {
@@ -23,17 +22,11 @@ type Allocate struct {
 	Index int
 }
 
-func NewJobQueue(size int) *PriorityJobQueue {
+func NewJobQueue() *PriorityJobQueue {
 	return &PriorityJobQueue{
 		queue: []*Allocate{},
-		length: size,
 	}
 }
-
-func (pq *PriorityJobQueue) Length() int {
-	return pq.length
-}
-
 
 func (pq *PriorityJobQueue) Size() int {
 	return len(pq.queue)
@@ -42,6 +35,7 @@ func (pq *PriorityJobQueue) Size() int {
 func (pq *PriorityJobQueue) Less(i,j int) bool {
 	pq.mutex.RLock()
 	defer pq.mutex.RUnlock()
+
 	if pq.queue[i].When.IsZero(){
 		return true
 	}
@@ -116,6 +110,19 @@ func (pq *PriorityJobQueue) Pop() *Allocate {
 	pq.queue = old.queue[0:n-1]
 	
 	return item
+}
+
+func (pq *PriorityJobQueue) SearchAllocate(job job.Job) (*Allocate, bool) {
+	pq.mutex.Lock()
+	defer pq.mutex.Unlock()
+
+	for _, val := range pq.queue {
+		if val.Job == job {
+			return val, true
+		}
+	}
+
+	return nil, false
 }
 
 func (pq *PriorityJobQueue) SetAllocate(item *Allocate) {

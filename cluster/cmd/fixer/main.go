@@ -38,11 +38,10 @@ func realMain() error {
 
 	var wait sync.WaitGroup
 	wait.Add(1)
-	queue := queue.NewJobQueue(100)
+	queue := queue.NewJobQueue()
 
 	audioSrv := audio.NewAudioServiceServer(queue, *token)
 	var opts []grpc.ServerOption
-	// rwMutex := new(sync.RWMutex)
 
 	grpcServer := grpc.NewServer(opts...)
 	pb_svc_audio.RegisterAudioServiceServer(grpcServer, audioSrv)
