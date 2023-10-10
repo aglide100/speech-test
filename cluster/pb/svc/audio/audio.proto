@@ -1,27 +1,9 @@
 syntax = "proto3";
 option go_package = "github.com/aglide100/speech-test/cluster/pb/svc/audio";
 
-message Requirement {
-    string content = 1;
-    string speaker = 2;
-    string token = 3;
-}
-
-message AudioResult {
-    Audio audio = 1;
-    Auth auth = 2;
-    Job job = 3;
-}
 
 message Audio {
     bytes data = 1;
-}
-
-message Request {
-    Auth auth = 1;
-    string content = 2;
-    string speaker = 3;
-    string path = 4;
 }
 
 message Error {
@@ -30,7 +12,7 @@ message Error {
 
 message Auth {
     string token = 1;
-    string from = 2;
+    string who = 2;
 }
 
 message Job {
@@ -39,13 +21,36 @@ message Job {
     string id = 3;
 }
 
-message Checking {
+message CheckingJobReq {
     Auth auth = 1;
 }
 
+message CheckingJobRes {
+    Job job = 1;
+    Error error = 2;
+}
+
+message SendingResultReq {
+    Audio audio = 1;
+    Auth auth = 2;
+    Job job = 3;
+}
+
+message MakingNewJobReq {
+    Auth auth = 1;
+    string content = 2;
+    string speaker = 3;
+    string path = 4;
+}
+
+message GetAudioReq {
+    Auth auth = 1;
+    Job job = 2;
+}
+
 service AudioService {
-    rpc GenerateAudio(Requirement) returns (Audio);
-    rpc MakingNewJob(Request) returns (Error);
-    rpc CheckingJob(Checking) returns (Job);
-    rpc SendingResult(AudioResult) returns (Error);
+    rpc GetAudio(GetAudioReq) returns (Audio);
+    rpc MakingNewJob(MakingNewJobReq) returns (Error);
+    rpc CheckingJob(CheckingJobReq) returns (CheckingJobRes);
+    rpc SendingResult(SendingResultReq) returns (Error);
 }

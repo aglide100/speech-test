@@ -29,14 +29,14 @@ func NewAudioServiceServer(q *queue.PriorityJobQueue, token string) *AudioSrv {
 	}
 }
 
-func (s *AudioSrv) GenerateAudio(ctx context.Context, in *pb_svc_audio.Requirement) (*pb_svc_audio.Audio, error) {
+func (s *AudioSrv) GetAudio(ctx context.Context, in *pb_svc_audio.GetAudioReq) (*pb_svc_audio.Audio, error) {
 
 	return nil, nil
 }
 
-func (s *AudioSrv) MakingNewJob(ctx context.Context, in *pb_svc_audio.Request) (*pb_svc_audio.Error, error) {
+func (s *AudioSrv) MakingNewJob(ctx context.Context, in *pb_svc_audio.MakingNewJobReq) (*pb_svc_audio.Error, error) {
 	if (in.Auth.Token != s.token) {
-		log.Printf("From : %s", in.Auth.From)
+		log.Printf("From : %s", in.Auth.Who)
 		return &pb_svc_audio.Error{Msg: "invalid token"}, errors.New("invalid token")
 	}
 
@@ -55,38 +55,42 @@ func (s *AudioSrv) MakingNewJob(ctx context.Context, in *pb_svc_audio.Request) (
 	return &pb_svc_audio.Error{}, nil
 }
 
-func (s *AudioSrv) CheckingJob(ctx context.Context, in *pb_svc_audio.Checking) (*pb_svc_audio.Job, error) {
+func (s *AudioSrv) CheckingJob(ctx context.Context, in *pb_svc_audio.CheckingJobReq) (*pb_svc_audio.CheckingJobRes, error) {
 	if (in.Auth.Token != s.token) {
-		log.Printf("From : %s", in.Auth.From)
-		return &pb_svc_audio.Job{}, errors.New("invalid token")
+		log.Printf("From : %s", in.Auth.Who)
+		return &pb_svc_audio.CheckingJobRes{}, errors.New("invalid token")
 	}
 
 	job, found := s.q.GetNotAllocate()
 	if !found {
-		return &pb_svc_audio.Job{}, errors.New("there's no available jobs")
+		return &pb_svc_audio.CheckingJobRes{
+			Error: &pb_svc_audio.Error{Msg: "there's no available jobs"},
+		}, nil
 	}
 
 	allocated := &queue.Allocate{
 		Job: job,
 		Who: runner.Runner{
 			CurrentWork: job.Content,
-			Who: in.Auth.From,
+			Who: in.Auth.Who,
 		},
 		When: time.Now(),
 	}
 
 	s.q.SetAllocate(allocated)
 
-	return &pb_svc_audio.Job{
-		Content: job.Content,
-		Speaker: job.Speaker,
-		Id: job.Id,
+	return &pb_svc_audio.CheckingJobRes{
+		Job: &pb_svc_audio.Job{
+			Content: job.Content,
+			Speaker: job.Speaker,
+			Id: job.Id,
+		},
 	}, nil
 }
 
-func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.AudioResult) (*pb_svc_audio.Error, error) {
+func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingResultReq) (*pb_svc_audio.Error, error) {
 	if in.Auth.Token != s.token { 
-		log.Printf("From : %s", in.Auth.From)
+		log.Printf("From : %s", in.Auth.Who)
 		return &pb_svc_audio.Error{Msg: "invalid token"}, errors.New("invalid token")
 	}
 	logger.Info("audio", zap.Any("bytes", in.Audio.Data))

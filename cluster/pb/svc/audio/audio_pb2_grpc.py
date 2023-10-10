@@ -14,24 +14,24 @@ class AudioServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GenerateAudio = channel.unary_unary(
-                '/AudioService/GenerateAudio',
-                request_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.Requirement.SerializeToString,
+        self.GetAudio = channel.unary_unary(
+                '/AudioService/GetAudio',
+                request_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.GetAudioReq.SerializeToString,
                 response_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.Audio.FromString,
                 )
         self.MakingNewJob = channel.unary_unary(
                 '/AudioService/MakingNewJob',
-                request_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.Request.SerializeToString,
+                request_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.MakingNewJobReq.SerializeToString,
                 response_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.Error.FromString,
                 )
         self.CheckingJob = channel.unary_unary(
                 '/AudioService/CheckingJob',
-                request_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.Checking.SerializeToString,
-                response_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.Job.FromString,
+                request_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.CheckingJobReq.SerializeToString,
+                response_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.CheckingJobRes.FromString,
                 )
         self.SendingResult = channel.unary_unary(
                 '/AudioService/SendingResult',
-                request_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.AudioResult.SerializeToString,
+                request_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.SendingResultReq.SerializeToString,
                 response_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.Error.FromString,
                 )
 
@@ -39,7 +39,7 @@ class AudioServiceStub(object):
 class AudioServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def GenerateAudio(self, request, context):
+    def GetAudio(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -66,24 +66,24 @@ class AudioServiceServicer(object):
 
 def add_AudioServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GenerateAudio': grpc.unary_unary_rpc_method_handler(
-                    servicer.GenerateAudio,
-                    request_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.Requirement.FromString,
+            'GetAudio': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAudio,
+                    request_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.GetAudioReq.FromString,
                     response_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.Audio.SerializeToString,
             ),
             'MakingNewJob': grpc.unary_unary_rpc_method_handler(
                     servicer.MakingNewJob,
-                    request_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.Request.FromString,
+                    request_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.MakingNewJobReq.FromString,
                     response_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.Error.SerializeToString,
             ),
             'CheckingJob': grpc.unary_unary_rpc_method_handler(
                     servicer.CheckingJob,
-                    request_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.Checking.FromString,
-                    response_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.Job.SerializeToString,
+                    request_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.CheckingJobReq.FromString,
+                    response_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.CheckingJobRes.SerializeToString,
             ),
             'SendingResult': grpc.unary_unary_rpc_method_handler(
                     servicer.SendingResult,
-                    request_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.AudioResult.FromString,
+                    request_deserializer=pb_dot_svc_dot_audio_dot_audio__pb2.SendingResultReq.FromString,
                     response_serializer=pb_dot_svc_dot_audio_dot_audio__pb2.Error.SerializeToString,
             ),
     }
@@ -97,7 +97,7 @@ class AudioService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def GenerateAudio(request,
+    def GetAudio(request,
             target,
             options=(),
             channel_credentials=None,
@@ -107,8 +107,8 @@ class AudioService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/AudioService/GenerateAudio',
-            pb_dot_svc_dot_audio_dot_audio__pb2.Requirement.SerializeToString,
+        return grpc.experimental.unary_unary(request, target, '/AudioService/GetAudio',
+            pb_dot_svc_dot_audio_dot_audio__pb2.GetAudioReq.SerializeToString,
             pb_dot_svc_dot_audio_dot_audio__pb2.Audio.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
@@ -125,7 +125,7 @@ class AudioService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/AudioService/MakingNewJob',
-            pb_dot_svc_dot_audio_dot_audio__pb2.Request.SerializeToString,
+            pb_dot_svc_dot_audio_dot_audio__pb2.MakingNewJobReq.SerializeToString,
             pb_dot_svc_dot_audio_dot_audio__pb2.Error.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
@@ -142,8 +142,8 @@ class AudioService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/AudioService/CheckingJob',
-            pb_dot_svc_dot_audio_dot_audio__pb2.Checking.SerializeToString,
-            pb_dot_svc_dot_audio_dot_audio__pb2.Job.FromString,
+            pb_dot_svc_dot_audio_dot_audio__pb2.CheckingJobReq.SerializeToString,
+            pb_dot_svc_dot_audio_dot_audio__pb2.CheckingJobRes.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -159,7 +159,7 @@ class AudioService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/AudioService/SendingResult',
-            pb_dot_svc_dot_audio_dot_audio__pb2.AudioResult.SerializeToString,
+            pb_dot_svc_dot_audio_dot_audio__pb2.SendingResultReq.SerializeToString,
             pb_dot_svc_dot_audio_dot_audio__pb2.Error.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
