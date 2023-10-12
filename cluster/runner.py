@@ -2,11 +2,12 @@ import os
 import grpc
 import time
 
-import pickle
 import pb.svc.audio.audio_pb2 as audio_pb2
 import pb.svc.audio.audio_pb2_grpc as audio_pb2_grpc
-
-from bark import generate_audio, preload_models
+# import scipy.io as scipy
+from scipy.io.wavfile import write as write_wav
+import io
+from bark import generate_audio, preload_models, SAMPLE_RATE
 options = [
     # ('grpc.keepalive_time_ms', 900000),
     ('grpc.keepalive_permit_without_calls', True)
@@ -26,7 +27,7 @@ def gen_grpc_stubs():
 def call_checking_jobs(stub: audio_pb2_grpc.AudioServiceStub):
     response = stub.CheckingJob(
         audio_pb2.CheckingJobReq(
-            auth=audio_pb2.Auth(token=token, who="")
+            auth=audio_pb2.Auth(token=token, who=who)
         )
     )
 
@@ -34,20 +35,26 @@ def call_checking_jobs(stub: audio_pb2_grpc.AudioServiceStub):
 
 
 def call_sending_result(stub: audio_pb2_grpc.AudioServiceStub, audio, token, who, content, speaker, id):
-    response = stub.SendingResult(
-        audio_pb2.Audio(
+
+    request = audio_pb2.SendingResultReq(
+        audio=audio_pb2.Audio(
             data=audio
         ),
-        audio_pb2.Auth(
+        auth=audio_pb2.Auth(
             token=token,
             who=who
         ),
-        audio_pb2.Job(
+        job=audio_pb2.Job(
             content=content,
             speaker=speaker,
             id=id
         )
     )
+
+    try:
+        response = stub.SendingResult(request)
+    except grpc.RpcError as e:
+        print(f"Error: {e.code()}: {e.details()}")
 
     return response
 
@@ -59,23 +66,25 @@ def main():
         response = call_checking_jobs(stub)
         if len(str(response.error)) > 1:
             print(str(response.error))
+        elif response.job is None or len(response.job.content) == 0:
+            # pass
+            time.sleep(1)
         else:
             job = response.job
-            print("generate audio", job.content, job.speaker)
+            print("generate audio", job.content, ", ", job.speaker)
 
             audio = generate_audio(job.content, history_prompt=job.speaker)
+            # print(audio)
+            serialized_audio = io.BytesIO(audio).getvalue()
 
-            serialized_audio = pickle.dumps(audio)
-            err = call_sending_result(
-                stub, serialized_audio, token, who, job.content, job.speaker, job.id)
-            if len(str(err.msg)) <= 1:
-                print("sended, ", len(serialized_audio))
+            print("sending : ", len(serialized_audio))
+            call_sending_result(stub, serialized_audio, token,
+                                who, job.content, job.speaker, job.id)
 
         time.sleep(60)
 
 
 if __name__ == '__main__':
-    # nltk.download('punkt')
     preload_models()
     print("loaded!")
     main()

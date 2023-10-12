@@ -20,6 +20,7 @@ import (
 var (
 	managerAddr = flag.String("manager grpc addr", "0.0.0.0:50012", "grpc address")
 	token = flag.String("token", "test", "using for auth")
+	password = flag.String("password", "password", "using for db password")
 )
 
 func main() {

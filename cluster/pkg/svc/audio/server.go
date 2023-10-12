@@ -8,10 +8,8 @@ import (
 
 	pb_svc_audio "github.com/aglide100/speech-test/cluster/pb/svc/audio"
 	"github.com/aglide100/speech-test/cluster/pkg/job"
-	"github.com/aglide100/speech-test/cluster/pkg/logger"
 	"github.com/aglide100/speech-test/cluster/pkg/queue"
 	"github.com/aglide100/speech-test/cluster/pkg/runner"
-	"go.uber.org/zap"
 )
 
 type AudioSrv struct {
@@ -64,7 +62,7 @@ func (s *AudioSrv) CheckingJob(ctx context.Context, in *pb_svc_audio.CheckingJob
 	job, found := s.q.GetNotAllocate()
 	if !found {
 		return &pb_svc_audio.CheckingJobRes{
-			Error: &pb_svc_audio.Error{Msg: "there's no available jobs"},
+			// Error: &pb_svc_audio.Error{Msg: "there's no available jobs"},
 		}, nil
 	}
 
@@ -93,7 +91,7 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 		log.Printf("From : %s", in.Auth.Who)
 		return &pb_svc_audio.Error{Msg: "invalid token"}, errors.New("invalid token")
 	}
-	logger.Info("audio", zap.Any("bytes", in.Audio.Data))
+	// logger.Info("audio", zap.Any("bytes", in.Audio.Data))
 
 	ok := s.requests.AddAudioInRequest(&job.Job{
 		Content: in.Job.Content,

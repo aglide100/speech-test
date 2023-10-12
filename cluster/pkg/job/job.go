@@ -49,19 +49,27 @@ func (req *RequestQueue) AddAudioInRequest(job *Job, audio []byte) bool {
 	return req.CheckComplete()
 }
 
+func saveToAudio(request *Request) {
+	// TODO
+	logger.Info("TODO; save audio", zap.Any("req", request))
+}
+
 func (req *RequestQueue) CheckComplete() bool {
 	found := false
 	index := -1
+	logger.Info("Check complete")
 	for idx1, request := range req.reqs {
 		ok := true
 		for idx2, _ := range request.Jobs{
+			logger.Info("len audio", zap.Any("len", len(req.reqs[idx1].Audio[idx2])))
 			if len(req.reqs[idx1].Audio[idx2]) == 0 {
-				ok = false;
-				break;
+				ok = false
+				break
 			}
 		}
 
 		if ok {
+			logger.Info("!!!!")
 			found = true
 			index = idx1
 			break
@@ -70,11 +78,15 @@ func (req *RequestQueue) CheckComplete() bool {
 
 	if found {
 		tmp := req.reqs[index]
+		saveToAudio(tmp)
+
+		if len(req.reqs) == 1 {
+			req.reqs = []*Request{}
+			return true
+		}
 
 		req.reqs = append(req.reqs[:index], req.reqs[index+1])
 
-		// TODO make wav file
-		logger.Info("Done!", zap.Any("req", tmp))
 		return true
 	}
 
