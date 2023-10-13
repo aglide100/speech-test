@@ -2,6 +2,7 @@ package audio
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"log"
 	"time"
@@ -19,11 +20,11 @@ type AudioSrv struct {
 	requests *job.RequestQueue
 }
 
-func NewAudioServiceServer(q *queue.PriorityJobQueue, token string) *AudioSrv {
+func NewAudioServiceServer(q *queue.PriorityJobQueue, token string, db *sql.DB) *AudioSrv {
 	return &AudioSrv{
 		q:q,
 		token: token,
-		requests: job.NewRequestQueue(),
+		requests: job.NewRequestQueue(db),
 	}
 }
 

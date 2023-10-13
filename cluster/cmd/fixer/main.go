@@ -12,6 +12,7 @@ import (
 
 	pb_svc_audio "github.com/aglide100/speech-test/cluster/pb/svc/audio"
 
+	"github.com/aglide100/speech-test/cluster/pkg/db"
 	"github.com/aglide100/speech-test/cluster/pkg/queue"
 	"github.com/aglide100/speech-test/cluster/pkg/svc/audio"
 	"golang.org/x/sync/errgroup"
@@ -41,7 +42,12 @@ func realMain() error {
 	wait.Add(1)
 	queue := queue.NewJobQueue()
 
-	audioSrv := audio.NewAudioServiceServer(queue, *token)
+	db, err := db.NewDB()
+	if err != nil {
+		return err
+	}
+
+	audioSrv := audio.NewAudioServiceServer(queue, *token, db)
 	var opts []grpc.ServerOption
 
 	grpcServer := grpc.NewServer(opts...)
