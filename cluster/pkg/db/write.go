@@ -1,26 +1,33 @@
 package db
 
 import (
-	"database/sql"
-
-	"github.com/aglide100/speech-test/cluster/pkg/job"
+	"github.com/aglide100/speech-test/cluster/pkg/logger"
+	"github.com/aglide100/speech-test/cluster/pkg/request"
+	"go.uber.org/zap"
 )
 
-func SaveAudio(db *sql.DB, audio *job.Request) error {
+func (db *Database) SaveAudio(parent int, req *request.Request) error {
 	const q = `
-	INSERT INTO Audio () 
+	INSERT INTO Audio (Audio.parent, Audio.data, Audio.order) VALUES ($1, $2, $3)
 	`
+	for idx, val := range req.Audio {
+		_, err := db.conn.Exec(q, parent, val, idx)
+		if err != nil {
+			logger.Error("Can't insert Audio", zap.Error(err))
+			return err
+		}
+	}
 
-	// _, err := db.Exec(q, audio.Text, )
 	return nil
 }
 
-func SaveJob(db *sql.DB, req *job.Request) error {
+
+func (db *Database) SaveJob(req *request.Request) error {
 	const q = `
 	INSERT INTO Job (Job.text, Job.date) VALUES ($1, now())
 	`
 
-	_, err := db.Exec(q, req.Text)
+	_, err := db.conn.Exec(q, req.Text)
 	if err != nil {
 		return err
 	}

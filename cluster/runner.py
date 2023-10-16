@@ -5,7 +5,7 @@ import time
 import pb.svc.audio.audio_pb2 as audio_pb2
 import pb.svc.audio.audio_pb2_grpc as audio_pb2_grpc
 from scipy.io.wavfile import write as write_wav
-import pickle
+
 from bark import generate_audio, preload_models, SAMPLE_RATE
 options = [
     # ('grpc.keepalive_time_ms', 900000),
@@ -34,7 +34,6 @@ def call_checking_jobs(stub: audio_pb2_grpc.AudioServiceStub):
 
 
 def call_sending_result(stub: audio_pb2_grpc.AudioServiceStub, audio, token, who, content, speaker, id):
-
     request = audio_pb2.SendingResultReq(
         audio=audio_pb2.Audio(
             data=audio
@@ -73,7 +72,6 @@ def main():
             print("generate audio", job.content, ", ", job.speaker)
 
             audio = generate_audio(job.content, history_prompt=job.speaker)
-            # print(audio)
 
             write_wav('output.wav', SAMPLE_RATE, audio)
 

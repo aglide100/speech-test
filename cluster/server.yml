@@ -1,19 +1,19 @@
 version: "3"
 services:
     server:
-        build: .
+        # build: .
+        image: ghcr.io/aglide100/ai-speech-server:latest
         container_name: server
         hostname: server
         networks:
             - docker_network
         volumes:
-         - ~/.cache:/root/.cache
+            - ~/.cache:/root/.cache
         ports:
-            - 50052:50052
+            - 50012:50012
         environment:
             - TOKEN=test
-            #- SUNO_OFFLOAD_CPU=True
-            #- SUNO_USE_SMALL_MODELS=True
+            - DSN={DSN}
         command: python3 audio_server.py
 
 networks:

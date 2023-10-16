@@ -14,6 +14,7 @@ import (
 
 	"github.com/aglide100/speech-test/cluster/pkg/db"
 	"github.com/aglide100/speech-test/cluster/pkg/queue"
+	"github.com/aglide100/speech-test/cluster/pkg/runner"
 	"github.com/aglide100/speech-test/cluster/pkg/svc/audio"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -40,19 +41,23 @@ func realMain() error {
 
 	var wait sync.WaitGroup
 	wait.Add(1)
-	queue := queue.NewJobQueue()
+
+
+	running := queue.NewPriorityQueue()
+	waiting := queue.NewPriorityQueue()
+	mutex := &sync.Mutex{}
 
 	db, err := db.NewDB()
 	if err != nil {
 		return err
 	}
 
-	audioSrv := audio.NewAudioServiceServer(queue, *token, db)
+	audioSrv := audio.NewAudioServiceServer(running, waiting, *token, mutex, db)
 	var opts []grpc.ServerOption
 
 	grpcServer := grpc.NewServer(opts...)
 	pb_svc_audio.RegisterAudioServiceServer(grpcServer, audioSrv)
-
+ 
 	wg, _ := errgroup.WithContext(context.Background())
 
 	wg.Go(func() error {
@@ -73,7 +78,17 @@ func realMain() error {
 
 
 		for range ticker.C {
-			queue.CheckTimeOut()
+			mutex.Lock()
+			items := running.CheckTimeOut()
+
+			if len(items) >= 1 {
+				for _, val := range items {
+					val.Value.Who = runner.Runner{}
+					val.Value.When = time.Time{}
+					waiting.Push(val)
+				}
+			}
+			mutex.Unlock()
 		}
 
 		return nil

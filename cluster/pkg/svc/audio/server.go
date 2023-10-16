@@ -2,29 +2,37 @@ package audio
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"log"
+	"sync"
 	"time"
 
 	pb_svc_audio "github.com/aglide100/speech-test/cluster/pb/svc/audio"
+	"github.com/aglide100/speech-test/cluster/pkg/db"
 	"github.com/aglide100/speech-test/cluster/pkg/job"
 	"github.com/aglide100/speech-test/cluster/pkg/queue"
+	"github.com/aglide100/speech-test/cluster/pkg/request"
 	"github.com/aglide100/speech-test/cluster/pkg/runner"
 )
 
 type AudioSrv struct {
 	pb_svc_audio.AudioServiceServer
 	token string
-	q *queue.PriorityJobQueue
-	requests *job.RequestQueue
+	running *queue.PriorityQueue
+	waiting *queue.PriorityQueue
+	requests *queue.RequestQueue
+	mu *sync.Mutex
+	db *db.Database
 }
 
-func NewAudioServiceServer(q *queue.PriorityJobQueue, token string, db *sql.DB) *AudioSrv {
+func NewAudioServiceServer(running, waiting *queue.PriorityQueue, token string, mutex *sync.Mutex, db *db.Database) *AudioSrv {
 	return &AudioSrv{
-		q:q,
+		running: running,
+		waiting: waiting, 
 		token: token,
-		requests: job.NewRequestQueue(db),
+		requests: queue.NewRequestQueue(),
+		mu: mutex,
+		db: db,
 	}
 }
 
@@ -39,16 +47,32 @@ func (s *AudioSrv) MakingNewJob(ctx context.Context, in *pb_svc_audio.MakingNewJ
 		return &pb_svc_audio.Error{Msg: "invalid token"}, errors.New("invalid token")
 	}
 
-	request := job.DivideTest(in.Content, in.Speaker)
+	err := s.db.SaveJob(&request.Request{
+		Text: in.Content,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	request := request.MakeRequest(in.Content, in.Speaker)
+
 	request.Audio = make([][]byte, len(request.Jobs))
 	s.requests.AddRequest(request)
 
 	for _, job := range request.Jobs {
-		newAllocate := &queue.Allocate{
+		newAllocate := queue.Allocate{
 			Job: *job,
 		}
-		
-		s.q.Push(newAllocate)
+
+		s.mu.Lock()
+
+		item := &queue.Item{
+			Value: newAllocate, 
+			Index : s.waiting.Len(),
+		}
+		s.waiting.Push(item)
+
+		s.mu.Unlock()
 	}
 
 	return &pb_svc_audio.Error{}, nil
@@ -60,29 +84,40 @@ func (s *AudioSrv) CheckingJob(ctx context.Context, in *pb_svc_audio.CheckingJob
 		return &pb_svc_audio.CheckingJobRes{}, errors.New("invalid token")
 	}
 
-	job, found := s.q.GetNotAllocate()
-	if !found {
+	s.mu.Lock()
+	p, ok := s.waiting.Pop()
+
+	if ok {
+		allocated := &queue.Allocate{
+			Job: job.Job{
+				Content: p.Value.Job.Content,
+				Speaker:  p.Value.Job.Speaker,
+				Id:  p.Value.Job.Id,
+			},
+			Who: runner.Runner{
+				CurrentWork:  p.Value.Job.Content,
+				Who: in.Auth.Who,
+			},
+			When: time.Now(),
+		}
+	
+		s.running.Push(&queue.Item{
+			Value: *allocated,
+		})
+	}
+
+	s.mu.Unlock()
+
+	if !ok {
 		return &pb_svc_audio.CheckingJobRes{
-			// Error: &pb_svc_audio.Error{Msg: "there's no available jobs"},
 		}, nil
 	}
 
-	allocated := &queue.Allocate{
-		Job: job,
-		Who: runner.Runner{
-			CurrentWork: job.Content,
-			Who: in.Auth.Who,
-		},
-		When: time.Now(),
-	}
-
-	s.q.SetAllocate(allocated)
-
 	return &pb_svc_audio.CheckingJobRes{
 		Job: &pb_svc_audio.Job{
-			Content: job.Content,
-			Speaker: job.Speaker,
-			Id: job.Id,
+			Content:  p.Value.Job.Content,
+			Speaker:  p.Value.Job.Speaker,
+			Id:  p.Value.Job.Id,
 		},
 	}, nil
 }
@@ -92,17 +127,31 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 		log.Printf("From : %s", in.Auth.Who)
 		return &pb_svc_audio.Error{Msg: "invalid token"}, errors.New("invalid token")
 	}
-	// logger.Info("audio", zap.Any("bytes", in.Audio.Data))
-
-	ok := s.requests.AddAudioInRequest(&job.Job{
+	s.mu.Lock()
+	ok, result := s.requests.AddAudioInRequest(&job.Job{
 		Content: in.Job.Content,
 		Speaker: in.Job.Speaker,
 		Id: in.Job.Id,
 	}, in.Audio.Data)
-
+	
+	s.mu.Unlock()
 	if ok {
+		parent, err := s.db.GetParent(result.Text)
+		if err != nil {
+			return &pb_svc_audio.Error{
+				Msg: "Internal error",
+			}, err
+		}
+
+		err = s.db.SaveAudio(parent, result)
+		if err != nil {
+			return &pb_svc_audio.Error{
+				Msg: "Internal error",
+			}, err
+		}
+		
 		return &pb_svc_audio.Error{}, nil 
 	}
-
+	
 	return &pb_svc_audio.Error{Msg: "Not complete"}, nil
 }
