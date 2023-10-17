@@ -1,6 +1,6 @@
-FROM golang:1.18 AS builder
+FROM golang:1.20-alpine3.17 AS builder
 
-RUN apt update && apt install -y upx
+RUN apk update && apk add upx
 
 WORKDIR "/go/src/github.com/aglide100/speech-test"
 
