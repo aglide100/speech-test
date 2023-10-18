@@ -5,3 +5,4 @@
 *.wav
 __pycache__
 .env
+.env copy

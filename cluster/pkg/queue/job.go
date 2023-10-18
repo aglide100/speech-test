@@ -50,17 +50,16 @@ func (pq *PriorityQueue) Push(item *Item) {
 	n := len(pq.queue)
 	item.Index = n
 	pq.queue = append(pq.queue, item)
+	pq.bubbleUp(len(pq.queue)-1)
 }
  
 func (pq *PriorityQueue) Swap(i, j int) {
-
 	pq.queue[i], pq.queue[j] = pq.queue[j], pq.queue[i]
 	pq.queue[i].Index = i
 	pq.queue[j].Index = j
 }
 
 func (pq *PriorityQueue) Remove(item *Item) {
-
 	old := []*Item{}
 	copy(old, pq.queue)
 
@@ -100,14 +99,14 @@ func (pq *PriorityQueue) Pop() (*Item, bool) {
 		return item, true
 	}
 
-    item := pq.queue[0]
+    root := pq.queue[0]
+	last := pq.queue[pq.Len()-1]
 
-    n := len(pq.queue)
-    pq.queue[0] = pq.queue[n-1]
-    pq.queue[0].Index = 0
-    pq.queue = pq.queue[0 : n-1]
-	
-	return item, true
+	pq.queue[0] = last
+	pq.queue = pq.queue[:len(pq.queue)-1]
+	pq.bubbleDown(0)
+
+	return root, true
 }
 
 
@@ -163,7 +162,7 @@ func (pq *PriorityQueue) CheckTimeOut() []*Item {
                 logger.Error("time is weird", zap.Any("tmp", tmp))
             } else {
                 duration := currentTime.Sub(tmp.Value.When)
-                if duration >= time.Second*3 {
+                if duration >= time.Hour*1 {
                     logger.Info("Timeout!", zap.Any("item", tmp))
                     timedOutItems = append(timedOutItems, tmp)
                 } else {
@@ -180,3 +179,51 @@ func (pq *PriorityQueue) CheckTimeOut() []*Item {
     return timedOutItems
 }
 
+func (pq *PriorityQueue) bubbleUp(index int) {
+	for index > 0 {
+		parentIdx := (index - 1) /2
+		
+		if pq.queue[index].Value.When.Before(pq.queue[parentIdx].Value.When) {
+			break
+		}
+
+		pq.queue[index], pq.queue[parentIdx] = pq.queue[parentIdx], pq.queue[index]
+		index = parentIdx
+	}
+}
+
+func (pq *PriorityQueue) bubbleDown(index int) {
+	currentTime := time.Now()
+
+	for {
+		leftIdx := index*2 + 1
+		rightIdx := index*2 + 2
+
+		min := index
+
+		if leftIdx < pq.Len() {
+			durationLeftIdx := currentTime.Sub(pq.queue[leftIdx].Value.When)
+			durationMinIdx := currentTime.Sub(pq.queue[min].Value.When)
+			
+			if durationMinIdx > durationLeftIdx {
+				min = leftIdx
+			}
+		}
+
+		if rightIdx < pq.Len() {
+			durationRightIdx := currentTime.Sub(pq.queue[rightIdx].Value.When)
+			durationMinIdx := currentTime.Sub(pq.queue[min].Value.When)
+			
+			if durationMinIdx > durationRightIdx {
+				min = rightIdx
+			}
+		}
+
+		if min == index {
+			break
+		}
+
+		pq.queue[index], pq.queue[min] = pq.queue[min], pq.queue[index]
+		index = min
+	}
+}
