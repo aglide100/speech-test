@@ -10,14 +10,9 @@ import (
 )
 
 func NewDB() (*Database, error) {
-	// err := godotenv.Load(".env")
-    
-    // if err != nil {
-    //     log.Fatal("Error loading .env file")
-    // }
-
 	db, err := sql.Open("mysql", os.Getenv("DSN"))
     if err != nil {
+		log.Printf("DSN : %s", os.Getenv("DSN"))
         log.Fatalf("failed to connect: %v", err)
     }
 

@@ -79,8 +79,6 @@ def main():
                 serialized_audio = fd.read()
 
             print("sending : ", len(serialized_audio))
-            print("")
-            print(serialized_audio)
             call_sending_result(stub, serialized_audio, token,
                                 who, job.content, job.speaker, job.id)
 
@@ -90,4 +88,9 @@ def main():
 if __name__ == '__main__':
     preload_models()
     print("loaded!")
-    main()
+    while True:
+        try:
+            main()
+        except Exception as e:
+            print(e)
+            time.sleep(60)

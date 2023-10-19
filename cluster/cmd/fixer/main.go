@@ -21,7 +21,6 @@ import (
 )
 var (
 	managerAddr = flag.String("manager grpc addr", "0.0.0.0:50012", "grpc address")
-	token = flag.String("token", "test", "using for auth")
 )
 
 func main() {
@@ -49,8 +48,11 @@ func realMain() error {
 	if err != nil {
 		return err
 	}
+	token := os.Getenv("TOKEN")
 
-	audioSrv := audio.NewAudioServiceServer(running, waiting, *token, mutex, db)
+	log.Printf("Token : %s", token)
+
+	audioSrv := audio.NewAudioServiceServer(running, waiting, token, mutex, db)
 	var opts []grpc.ServerOption
 
 	grpcServer := grpc.NewServer(opts...)

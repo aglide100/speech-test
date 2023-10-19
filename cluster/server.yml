@@ -1,18 +1,19 @@
 version: "3"
 services:
     server:
+        # build:
+        #     context: .
+        #     dockerfile: ./cmd/fixer/Dockerfile
         image: ghcr.io/aglide100/ai-speech-server:latest
         container_name: server
         hostname: server
         networks:
-            - docker_network
-        volumes:
-            - ~/.cache:/root/.cache
+            - traefik-network
         ports:
             - 50012:50012
         environment:
-            - TOKEN={TOKEN}
-            - DSN={DSN}
+            TOKEN: ${TOKEN}
+            DSN: ${DSN}
 networks:
-    docker_network:
-        driver: bridge
+    traefik-network:
+        external: true
