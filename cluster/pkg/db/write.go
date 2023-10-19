@@ -11,7 +11,7 @@ func (db *Database) SaveAudio(parent int, req *request.Request) error {
 	INSERT INTO Audio (Audio.parent, Audio.data, Audio.order) VALUES (?, ?, ?)
 	`
 	for idx, val := range req.Audio {
-		_, err := db.conn.Exec(q, parent, val, idx)
+		_, err := db.conn.Exec(q, parent, string(val[:]), idx)
 		if err != nil {
 			logger.Error("Can't insert Audio", zap.Error(err))
 			return err

@@ -13,9 +13,13 @@ options = [
 ]
 
 load_dotenv()
+
+
 address = os.getenv("SERVER_ADDRESS")
 who = os.getenv("Local")
 token = os.getenv("TOKEN")
+
+print(address)
 
 
 def gen_grpc_stubs():
@@ -70,7 +74,7 @@ def main():
             time.sleep(1)
         else:
             job = response.job
-            print("generate audio", job.content, ", ", job.speaker)
+            print("generate audio : /", job.content, "/, ", job.speaker)
 
             audio = generate_audio(job.content, history_prompt=job.speaker)
 
@@ -78,10 +82,9 @@ def main():
 
             with open('output.wav', 'rb') as fd:
                 serialized_audio = fd.read()
-
-            print("sending : ", len(serialized_audio))
-            call_sending_result(stub, serialized_audio, token,
-                                who, job.content, job.speaker, job.id)
+                print("sending : ", len(serialized_audio))
+                call_sending_result(stub, serialized_audio, token,
+                                    who, job.content, job.speaker, job.id)
 
         time.sleep(60)
 
