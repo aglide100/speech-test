@@ -5,13 +5,14 @@ import time
 import pb.svc.audio.audio_pb2 as audio_pb2
 import pb.svc.audio.audio_pb2_grpc as audio_pb2_grpc
 from scipy.io.wavfile import write as write_wav
-
+from dotenv import load_dotenv
 from bark import generate_audio, preload_models, SAMPLE_RATE
 options = [
     # ('grpc.keepalive_time_ms', 900000),
     ('grpc.keepalive_permit_without_calls', True)
 ]
 
+load_dotenv()
 address = os.getenv("SERVER_ADDRESS")
 who = os.getenv("Local")
 token = os.getenv("TOKEN")

@@ -5,7 +5,6 @@ services:
         #     context: .
         #     dockerfile: ./cmd/fixer/Dockerfile
         image: ghcr.io/aglide100/ai-speech-server:latest
-        container_name: server
         hostname: server
         networks:
             - traefik-network
