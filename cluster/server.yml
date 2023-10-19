@@ -1,8 +1,7 @@
 version: "3"
 services:
     server:
-        build: .
-        # image: ghcr.io/aglide100/ai-speech-server:latest
+        image: ghcr.io/aglide100/ai-speech-server:latest
         container_name: server
         hostname: server
         networks:
@@ -12,10 +11,8 @@ services:
         ports:
             - 50012:50012
         environment:
-            - TOKEN=test
+            - TOKEN={TOKEN}
             - DSN={DSN}
-        command: python3 audio_server.py
-
 networks:
     docker_network:
         driver: bridge

@@ -7,15 +7,14 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/joho/godotenv"
 )
 
 func NewDB() (*Database, error) {
-	err := godotenv.Load(".env")
+	// err := godotenv.Load(".env")
     
-    if err != nil {
-        log.Fatal("Error loading .env file")
-    }
+    // if err != nil {
+    //     log.Fatal("Error loading .env file")
+    // }
 
 	db, err := sql.Open("mysql", os.Getenv("DSN"))
     if err != nil {
