@@ -7,7 +7,9 @@ import (
 
 type Request struct {
 	Text string
+	Speaker string
 	Jobs []*job.Job
+	Id int
 	Audio [][]byte
 }
 
@@ -17,7 +19,7 @@ func MakeRequest(text string, speaker string) *Request {
 	jobs := []*job.Job{}
 
 	texts := job.DivideTest(text)
-	
+
 	for _, sent := range texts {
 		newJob := &job.Job{
 			Content: sent,
@@ -30,9 +32,9 @@ func MakeRequest(text string, speaker string) *Request {
 		jobs = append(jobs, newJob)
 	}
 
-	
 	request.Jobs = jobs
 	request.Text = text
+	request.Speaker = speaker
 	
 	return request
 }

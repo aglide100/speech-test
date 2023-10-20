@@ -47,32 +47,20 @@ func (s *AudioSrv) MakingNewJob(ctx context.Context, in *pb_svc_audio.MakingNewJ
 		return &pb_svc_audio.Error{Msg: "invalid token"}, errors.New("invalid token")
 	}
 
+	req := request.MakeRequest(in.Content, in.Speaker)
+
 	err := s.db.SaveJob(&request.Request{
 		Text: in.Content,
+		Jobs: req.Jobs,
+		Speaker: in.Speaker,
 	})
 	if err != nil {
 		return nil, err
 	}
-
-	request := request.MakeRequest(in.Content, in.Speaker)
-
-	request.Audio = make([][]byte, len(request.Jobs))
-	s.requests.AddRequest(request)
-
-	for _, job := range request.Jobs {
-		newAllocate := queue.Allocate{
-			Job: *job,
-		}
-
-		s.mu.Lock()
-
-		item := &queue.Item{
-			Value: newAllocate, 
-			Index : s.waiting.Len(),
-		}
-		s.waiting.Push(item)
-
-		s.mu.Unlock()
+	
+	err = s.AddRequestInQueue(req)
+	if err != nil {
+		return nil, err
 	}
 
 	return &pb_svc_audio.Error{}, nil
@@ -154,4 +142,46 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 	}
 	
 	return &pb_svc_audio.Error{Msg: "Not complete"}, nil
+}
+
+func (s *AudioSrv) AddRequestInQueue(req *request.Request) error {
+	req.Audio = make([][]byte, len(req.Jobs))
+	s.requests.AddRequest(req)
+
+	for _, job := range req.Jobs {
+		newAllocate := queue.Allocate{
+			Job: *job,
+		}
+
+		s.mu.Lock()
+
+		item := &queue.Item{
+			Value: newAllocate, 
+			Index : s.waiting.Len(),
+		}
+		s.waiting.Push(item)
+
+		s.mu.Unlock()
+	}
+
+	return nil
+}
+
+func (s *AudioSrv) AddIncomplete() error {
+	res, err := s.db.GetIncompleteJob()
+	if err != nil {
+		return err
+	}
+
+	for _, val := range res {
+		req := request.MakeRequest(val.Text, val.Speaker)
+
+		err := s.AddRequestInQueue(req)
+		if err != nil {
+			return err
+		}
+	
+	}
+
+	return nil 
 }

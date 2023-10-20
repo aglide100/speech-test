@@ -58,6 +58,11 @@ func realMain() error {
 	grpcServer := grpc.NewServer(opts...)
 	pb_svc_audio.RegisterAudioServiceServer(grpcServer, audioSrv)
  
+	err = audioSrv.AddIncomplete()
+	if err != nil {
+		return err
+	}
+	
 	wg, _ := errgroup.WithContext(context.Background())
 
 	wg.Go(func() error {
