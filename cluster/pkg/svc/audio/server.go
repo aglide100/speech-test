@@ -10,9 +10,11 @@ import (
 	pb_svc_audio "github.com/aglide100/speech-test/cluster/pb/svc/audio"
 	"github.com/aglide100/speech-test/cluster/pkg/db"
 	"github.com/aglide100/speech-test/cluster/pkg/job"
+	"github.com/aglide100/speech-test/cluster/pkg/logger"
 	"github.com/aglide100/speech-test/cluster/pkg/queue"
 	"github.com/aglide100/speech-test/cluster/pkg/request"
 	"github.com/aglide100/speech-test/cluster/pkg/runner"
+	"go.uber.org/zap"
 )
 
 type AudioSrv struct {
@@ -57,7 +59,7 @@ func (s *AudioSrv) MakingNewJob(ctx context.Context, in *pb_svc_audio.MakingNewJ
 	if err != nil {
 		return nil, err
 	}
-	
+
 	err = s.AddRequestInQueue(req)
 	if err != nil {
 		return nil, err
@@ -145,6 +147,7 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 }
 
 func (s *AudioSrv) AddRequestInQueue(req *request.Request) error {
+	logger.Info("Added", zap.Any("req", req))
 	req.Audio = make([][]byte, len(req.Jobs))
 	s.requests.AddRequest(req)
 

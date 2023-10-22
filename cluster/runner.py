@@ -6,7 +6,9 @@ import pb.svc.audio.audio_pb2 as audio_pb2
 import pb.svc.audio.audio_pb2_grpc as audio_pb2_grpc
 from scipy.io.wavfile import write as write_wav
 from dotenv import load_dotenv
-from bark import generate_audio, preload_models, SAMPLE_RATE
+from transformers import AutoProcessor, BarkModel
+import torch
+
 options = [
     # ('grpc.keepalive_time_ms', 900000),
     ('grpc.keepalive_permit_without_calls', True)
@@ -14,12 +16,9 @@ options = [
 
 load_dotenv()
 
-
 address = os.getenv("SERVER_ADDRESS")
 who = os.getenv("Local")
 token = os.getenv("TOKEN")
-
-print(address)
 
 
 def gen_grpc_stubs():
@@ -62,7 +61,7 @@ def call_sending_result(stub: audio_pb2_grpc.AudioServiceStub, audio, token, who
     return response
 
 
-def main():
+def main(model, processor):
     stub = gen_grpc_stubs()
 
     while True:
@@ -76,9 +75,14 @@ def main():
             job = response.job
             print("generate audio : /", job.content, "/, ", job.speaker)
 
-            audio = generate_audio(job.content, history_prompt=job.speaker)
+            inputs = processor(job.content, voice_preset=job.speaker)
 
-            write_wav('output.wav', SAMPLE_RATE, audio)
+            audio_array = model.generate(**inputs)
+            audio_array = audio_array.cpu().numpy().squeeze()
+            # audio = generate_audio(job.content, history_prompt=job.speaker)
+
+            write_wav('output.wav',
+                      model.generation_config.sample_rate, audio_array)
 
             with open('output.wav', 'rb') as fd:
                 serialized_audio = fd.read()
@@ -90,11 +94,21 @@ def main():
 
 
 if __name__ == '__main__':
-    preload_models()
+    print("calling to ", address)
+
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    processor = AutoProcessor.from_pretrained("suno/bark")
+    if device == "cuda:0":
+        model = BarkModel.from_pretrained("suno/bark")
+    else:
+        model = BarkModel.from_pretrained("suno/bark-small")
+
+    model = model.to(device)
+
     print("loaded!")
     while True:
         try:
-            main()
+            main(model, processor)
         except Exception as e:
             print(e)
             time.sleep(60)

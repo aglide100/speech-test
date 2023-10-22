@@ -24,6 +24,7 @@ func (db *Database) GetIncompleteJob() ([]request.Request, error) {
 	         LEFT JOIN (
 	    SELECT parent, value as v
 	    FROM Texts
+	    ORDER BY no
 	) AS t ON j.id = t.parent
 	         LEFT JOIN (
 	    SELECT parent, COUNT(*) AS audio_count
@@ -49,6 +50,6 @@ func (db *Database) GetIncompleteJob() ([]request.Request, error) {
 
 		reqs = append(reqs, req)
 	}
-	
+
 	return reqs, nil
 }

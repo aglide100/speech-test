@@ -62,7 +62,7 @@ func realMain() error {
 	if err != nil {
 		return err
 	}
-	
+
 	wg, _ := errgroup.WithContext(context.Background())
 
 	wg.Go(func() error {

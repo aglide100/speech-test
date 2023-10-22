@@ -8,7 +8,7 @@ import (
 
 func (db *Database) SaveAudio(parent int, req *request.Request) error {
 	const q = `
-	INSERT INTO Audio (Audio.parent, Audio.data, Audio.order) VALUES (?, ?, ?)
+	INSERT INTO Audio (Audio.parent, Audio.data, Audio.no) VALUES (?, ?, ?)
 	`
 	for idx, val := range req.Audio {
 		_, err := db.conn.Exec(q, parent, string(val[:]), idx)
@@ -55,7 +55,7 @@ func (db *Database) SaveJob(req *request.Request) error {
 
 func (db *Database) SaveText(text string, id, order int) error {
 	const q = `
-	INSERT INTO speech.Texts (value, parent, order) VALUES (?, ?, ?)
+	INSERT INTO speech.Texts (Texts.value, Texts.parent, Texts.no) VALUES (?, ?, ?)
 	`
 
 	_, err := db.conn.Exec(q, text, id, order)
