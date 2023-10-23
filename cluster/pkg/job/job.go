@@ -9,6 +9,7 @@ type Job struct {
 	Content string
 	Speaker string
 	Id	string
+	No int
 }
 
 func DivideTest(text string) []string {

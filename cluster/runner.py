@@ -37,7 +37,7 @@ def call_checking_jobs(stub: audio_pb2_grpc.AudioServiceStub):
     return response
 
 
-def call_sending_result(stub: audio_pb2_grpc.AudioServiceStub, audio, token, who, content, speaker, id):
+def call_sending_result(stub: audio_pb2_grpc.AudioServiceStub, audio, token, who, content, speaker, id, no):
     request = audio_pb2.SendingResultReq(
         audio=audio_pb2.Audio(
             data=audio
@@ -49,7 +49,8 @@ def call_sending_result(stub: audio_pb2_grpc.AudioServiceStub, audio, token, who
         job=audio_pb2.Job(
             content=content,
             speaker=speaker,
-            id=id
+            id=id,
+            no=no
         )
     )
 
@@ -88,7 +89,7 @@ def main(model, processor):
                 serialized_audio = fd.read()
                 print("sending : ", len(serialized_audio))
                 call_sending_result(stub, serialized_audio, token,
-                                    who, job.content, job.speaker, job.id)
+                                    who, job.content, job.speaker, job.id, job.no)
 
         time.sleep(60)
 

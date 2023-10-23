@@ -19,6 +19,7 @@ message Job {
     string content = 1;
     string speaker = 2;
     string id = 3;
+    int32  no = 4;
 }
 
 message CheckingJobReq {
