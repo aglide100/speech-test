@@ -15,18 +15,11 @@ func (db *Database) SaveAudio(textId int, audio []byte, speaker string) error {
 	`
 
 	logger.Info("SaveAudio")
-	_, err := db.conn.Exec(q, string(audio[:]), speaker, textId)
+	_, err := db.conn.Exec(q, audio, speaker, textId)
 	if err != nil {
 		logger.Error("Can't insert Audio", zap.Error(err))
 		return err
 	}
-	// for idx, val := range req.Audio {
-	// 	_, err := db.conn.Exec(q, parent, string(val[:]), idx)
-	// 	if err != nil {
-	// 		logger.Error("Can't insert Audio", zap.Error(err))
-	// 		return err
-	// 	}
-	// }
 
 	return nil
 }

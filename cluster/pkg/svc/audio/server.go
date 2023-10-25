@@ -132,6 +132,7 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 	if ok {
 		textId, err := s.db.GetTextId(in.Job.Content, in.Job.Speaker)
 		if err != nil {
+			
 			return &pb_svc_audio.Error{
 				Msg: "Internal error",
 			}, err

@@ -6,5 +6,7 @@ googleapis-common-protos
 grpcio
 huggingface-hub
 nltk
-protobuf
+protobuf=3.20
+transformers
+torch
 python-dotenv

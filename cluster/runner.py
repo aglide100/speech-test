@@ -20,6 +20,13 @@ address = os.getenv("SERVER_ADDRESS")
 who = os.getenv("Local")
 token = os.getenv("TOKEN")
 
+device = "cuda:0" if torch.cuda.is_available() else "cpu"
+processor = AutoProcessor.from_pretrained("suno/bark")
+model = BarkModel.from_pretrained("suno/bark")
+model = model.to(device)
+
+print("loaded!")
+
 
 def gen_grpc_stubs():
     channel = grpc.insecure_channel(address, options=options)
@@ -56,13 +63,12 @@ def call_sending_result(stub: audio_pb2_grpc.AudioServiceStub, audio, token, who
 
     try:
         response = stub.SendingResult(request)
+        return response
     except grpc.RpcError as e:
         print(f"Error: {e.code()}: {e.details()}")
 
-    return response
 
-
-def main(model, processor):
+def main():
     stub = gen_grpc_stubs()
 
     while True:
@@ -80,7 +86,6 @@ def main(model, processor):
 
             audio_array = model.generate(**inputs)
             audio_array = audio_array.cpu().numpy().squeeze()
-            # audio = generate_audio(job.content, history_prompt=job.speaker)
 
             write_wav('output.wav',
                       model.generation_config.sample_rate, audio_array)
@@ -97,19 +102,9 @@ def main(model, processor):
 if __name__ == '__main__':
     print("calling to ", address)
 
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    processor = AutoProcessor.from_pretrained("suno/bark")
-    if device == "cuda:0":
-        model = BarkModel.from_pretrained("suno/bark")
-    else:
-        model = BarkModel.from_pretrained("suno/bark-small")
-
-    model = model.to(device)
-
-    print("loaded!")
     while True:
         try:
-            main(model, processor)
+            main()
         except Exception as e:
             print(e)
             time.sleep(60)
