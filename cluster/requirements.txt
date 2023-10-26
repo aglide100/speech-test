@@ -6,7 +6,8 @@ googleapis-common-protos
 grpcio
 huggingface-hub
 nltk
-protobuf=3.20
+protobuf==3.20
 transformers
 torch
 python-dotenv
+scipy

@@ -12,12 +12,15 @@ type Request struct {
 	Id int
 }
 
-func MakeRequest(text string, speaker string) *Request {
+func MakeRequest(text string, speaker string) (*Request, error) {
 	request := &Request{}
 
 	jobs := []*job.Job{}
 
-	texts := job.DivideTest(text)
+	texts, err := job.DivideTest(text)
+	if err != nil {
+		return nil, err
+	}
 
 	for idx, sent := range texts {
 		newJob := &job.Job{
@@ -34,5 +37,5 @@ func MakeRequest(text string, speaker string) *Request {
 	request.Text = text
 	request.Speaker = speaker
 	
-	return request
+	return request, nil
 }

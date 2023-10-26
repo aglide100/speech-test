@@ -8,14 +8,14 @@ import (
 	"go.uber.org/zap"
 )
 
-func (db *Database) SaveAudio(textId int, audio []byte, speaker string) error {
+func (db *Database) SaveAudio(textId int, audio []byte, millisec float32, speaker string) error {
 	const q = `
-	INSERT INTO audio(data, speaker, text_id, play_time)
-   		VALUES (?, ?, ?, 0)
+	INSERT INTO audio(data, speaker, text_id, millisec)
+   		VALUES (?, ?, ?, ?)
 	`
 
 	logger.Info("SaveAudio")
-	_, err := db.conn.Exec(q, audio, speaker, textId)
+	_, err := db.conn.Exec(q, audio, speaker, textId, millisec)
 	if err != nil {
 		logger.Error("Can't insert Audio", zap.Error(err))
 		return err
@@ -36,7 +36,6 @@ func (db *Database) SaveJob(req *request.Request) error {
 	}
 
 	defer tx.Rollback()
-	logger.Info("req", zap.Any("req", req))
 
 	res, err := db.conn.Exec(q, len(req.Jobs), req.Speaker)
 	if err != nil {
@@ -49,7 +48,6 @@ func (db *Database) SaveJob(req *request.Request) error {
 		logger.Error("last insertId", zap.Error(err))
 		return err
 	}
-	logger.Info("jobid", zap.Any("jobId", jobId))
 
 	for idx, job := range req.Jobs {
 		err = db.SaveText(job.Content, job.Speaker, int(jobId), idx)

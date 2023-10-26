@@ -1,3 +1,4 @@
+import gc
 import os
 import grpc
 import time
@@ -8,24 +9,12 @@ from scipy.io.wavfile import write as write_wav
 from dotenv import load_dotenv
 from transformers import AutoProcessor, BarkModel
 import torch
+import socket
 
 options = [
     # ('grpc.keepalive_time_ms', 900000),
     ('grpc.keepalive_permit_without_calls', True)
 ]
-
-load_dotenv()
-
-address = os.getenv("SERVER_ADDRESS")
-who = os.getenv("Local")
-token = os.getenv("TOKEN")
-
-device = "cuda:0" if torch.cuda.is_available() else "cpu"
-processor = AutoProcessor.from_pretrained("suno/bark")
-model = BarkModel.from_pretrained("suno/bark")
-model = model.to(device)
-
-print("loaded!")
 
 
 def gen_grpc_stubs():
@@ -44,10 +33,11 @@ def call_checking_jobs(stub: audio_pb2_grpc.AudioServiceStub):
     return response
 
 
-def call_sending_result(stub: audio_pb2_grpc.AudioServiceStub, audio, token, who, content, speaker, id, no):
+def call_sending_result(stub: audio_pb2_grpc.AudioServiceStub, audio, millisec, token, who, content, speaker, id, no):
     request = audio_pb2.SendingResultReq(
         audio=audio_pb2.Audio(
-            data=audio
+            data=audio,
+            millisec=millisec
         ),
         auth=audio_pb2.Auth(
             token=token,
@@ -77,8 +67,21 @@ def main():
             print(str(response.error))
         elif response.job is None or len(response.job.content) == 0:
             # pass
-            time.sleep(1)
+            del model
+            gc.collect()
+            time.sleep(300)
         else:
+            device = "cuda:0" if torch.cuda.is_available() else "cpu"
+
+            if device == "cpu":
+                print("load small model")
+                processor = AutoProcessor.from_pretrained("suno/bark-small")
+            else:
+                processor = AutoProcessor.from_pretrained("suno/bark")
+
+            model = BarkModel.from_pretrained("suno/bark")
+            model = model.to(device)
+
             job = response.job
             print("generate audio : /", job.content, "/, ", job.speaker)
 
@@ -86,21 +89,41 @@ def main():
 
             audio_array = model.generate(**inputs)
             audio_array = audio_array.cpu().numpy().squeeze()
-
+            millisec = (len(audio_array) /
+                        model.generation_config.sample_rate) * 1000
             write_wav('output.wav',
                       model.generation_config.sample_rate, audio_array)
 
             with open('output.wav', 'rb') as fd:
                 serialized_audio = fd.read()
                 print("sending : ", len(serialized_audio))
-                call_sending_result(stub, serialized_audio, token,
+                call_sending_result(stub, serialized_audio, millisec, token,
                                     who, job.content, job.speaker, job.id, job.no)
 
         time.sleep(60)
 
 
 if __name__ == '__main__':
-    print("calling to ", address)
+    load_dotenv()
+
+    address = os.getenv("SERVER_ADDRESS")
+    who = socket.gethostname()
+    token = os.getenv("TOKEN")
+
+    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+
+    if device == "cpu":
+        print("load small model")
+        processor = AutoProcessor.from_pretrained("suno/bark-small")
+    else:
+        processor = AutoProcessor.from_pretrained("suno/bark")
+    model = BarkModel.from_pretrained("suno/bark")
+    model = model.to(device)
+    print("loaded!")
+
+    del model
+    gc.collect()
+    print("gc collected")
 
     while True:
         try:

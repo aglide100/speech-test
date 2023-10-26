@@ -50,9 +50,14 @@ func (s *AudioSrv) MakingNewJob(ctx context.Context, in *pb_svc_audio.MakingNewJ
 	}
 
 	logger.Info("MakingNewJob", zap.Any("content",in.Content))
-	req := request.MakeRequest(in.Content, in.Speaker)
+	req, err := request.MakeRequest(in.Content, in.Speaker)
+	if err != nil {
+		return &pb_svc_audio.Error{
+			Msg: err.Error(),
+		}, nil
+	}
 
-	err := s.db.SaveJob(&request.Request{
+	err = s.db.SaveJob(&request.Request{
 		Text: in.Content,
 		Jobs: req.Jobs,
 		Speaker: in.Speaker,
@@ -138,7 +143,7 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 			}, err
 		}
 	
-		err = s.db.SaveAudio(textId, in.Audio.Data, in.Job.Speaker)
+		err = s.db.SaveAudio(textId, in.Audio.Data, in.Audio.Millisec, in.Job.Speaker)
 		if err != nil {
 			return &pb_svc_audio.Error{
 				Msg: "Internal error",
@@ -150,8 +155,14 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 			if !ok {
 				logger.Error("Can't remove request in queue!", zap.Any("req", s.requests))
 			}
-		}
 
+			err := s.db.UpdateTotalPlayingTime(result.Id)
+			if err != nil {
+				return &pb_svc_audio.Error{
+					Msg: "Internal error",
+				}, err
+			}
+		}
 
 		s.mu.Unlock()
 		return &pb_svc_audio.Error{Msg: "Done"}, nil 
@@ -163,7 +174,6 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 
 func (s *AudioSrv) AddRequestInQueue(req *request.Request) error {
 	logger.Info("Added", zap.Any("req", req))
-	// req.Audio = make([][]byte, len(req.Jobs))
 	s.requests.AddRequest(req)
 
 	for _, job := range req.Jobs {
@@ -192,9 +202,12 @@ func (s *AudioSrv) AddIncomplete() error {
 	}
 
 	for _, val := range res {
-		req := request.MakeRequest(val.Text, val.Speaker)
+		req, err := request.MakeRequest(val.Text, val.Speaker)
+		if err != nil {
+			return err
+		}
 
-		err := s.AddRequestInQueue(req)
+		err = s.AddRequestInQueue(req)
 		if err != nil {
 			return err
 		}

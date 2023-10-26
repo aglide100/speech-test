@@ -7,12 +7,14 @@ services:
             - docker_network
         volumes:
             - ./output:/output
+            - ~/.cache:/root/.cache
         environment:
             - TOKEN=test
             - NODE_ADDRESS=server:50052
             - SPEAKER=v2/en_speaker_7
             - TEXT=hello
-        command: python3 audio_client.py
+        command: python3 test.py
+        # mem_limit: 6000m
 
 networks:
     docker_network:

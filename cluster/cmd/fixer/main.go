@@ -77,10 +77,9 @@ func realMain() error {
 	})
 
 	wg.Go(func() error {
-		duration, _ := time.ParseDuration("1s")
+		duration, _ := time.ParseDuration("30s")
 		ticker := time.NewTicker(duration)
 		defer ticker.Stop()
-
 
 		for range ticker.C {
 			mutex.Lock()
