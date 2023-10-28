@@ -15,7 +15,7 @@ func (db *Database) UpdateTotalPlayingTime(jobId int) error {
     	    GROUP BY jt.job_id
     	) AS sub ON j.id = sub.job_id
 	SET j.playing_time = IFNULL(sub.total_millisec, 0)
-	WHERE j.id = ?;
+	WHERE j.id = ?
 	`
 
 	_, err := db.conn.Exec(q, jobId)

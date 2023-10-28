@@ -202,10 +202,23 @@ func (s *AudioSrv) AddIncomplete() error {
 	}
 
 	for _, val := range res {
-		req, err := request.MakeRequest(val.Text, val.Speaker)
+		logger.Info("id", zap.Any("val", val))
+		jobs, err := s.db.GetIncompleteAudio(val.Id)
 		if err != nil {
+			logger.Info("Can't add job in req", zap.Error(err))
 			return err
 		}
+
+
+		req := &request.Request{
+			Text: val.Text,
+			Speaker: val.Speaker,
+			Jobs: jobs,
+		}
+		// req, err := request.MakeRequest(val.Text, val.Speaker)
+		// if err != nil {
+		// 	return err
+		// }
 
 		err = s.AddRequestInQueue(req)
 		if err != nil {

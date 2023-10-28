@@ -14,7 +14,7 @@ func (db *Database) SaveAudio(textId int, audio []byte, millisec float32, speake
    		VALUES (?, ?, ?, ?)
 	`
 
-	logger.Info("SaveAudio")
+	logger.Info("SaveAudio", zap.Any("speaker", speaker), zap.Any("textId", textId), zap.Any("millisec", millisec))
 	_, err := db.conn.Exec(q, audio, speaker, textId, millisec)
 	if err != nil {
 		logger.Error("Can't insert Audio", zap.Error(err))

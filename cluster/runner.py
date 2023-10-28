@@ -67,8 +67,11 @@ def main():
             print(str(response.error))
         elif response.job is None or len(response.job.content) == 0:
             # pass
-            del model
-            gc.collect()
+            if model is not None:
+                del model
+                gc.collect()
+                print("gc collected!")
+
             time.sleep(300)
         else:
             device = "cuda:0" if torch.cuda.is_available() else "cpu"
@@ -109,21 +112,6 @@ if __name__ == '__main__':
     address = os.getenv("SERVER_ADDRESS")
     who = socket.gethostname()
     token = os.getenv("TOKEN")
-
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
-
-    if device == "cpu":
-        print("load small model")
-        processor = AutoProcessor.from_pretrained("suno/bark-small")
-    else:
-        processor = AutoProcessor.from_pretrained("suno/bark")
-    model = BarkModel.from_pretrained("suno/bark")
-    model = model.to(device)
-    print("loaded!")
-
-    del model
-    gc.collect()
-    print("gc collected")
 
     while True:
         try:

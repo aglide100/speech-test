@@ -1,9 +1,9 @@
 package db
 
 import (
-	"github.com/aglide100/speech-test/cluster/pkg/logger"
+	"github.com/aglide100/speech-test/cluster/pkg/job"
 	"github.com/aglide100/speech-test/cluster/pkg/request"
-	"go.uber.org/zap"
+	"github.com/google/uuid"
 )
 
 func (db *Database) GetTextId(text, speaker string) (int, error) {
@@ -49,10 +49,45 @@ func (db *Database) GetIncompleteJob() ([]request.Request, error) {
 		if err := rows.Scan(&req.Id, &req.Speaker, &req.Text); err != nil {
 			return nil, err
 		}
-		logger.Info("debug", zap.String("req.Text", req.Text))
 
 		reqs = append(reqs, req)
 	}
 
 	return reqs, nil
+}
+
+func (db *Database) GetIncompleteAudio(jobId int) ([]*job.Job, error) {
+	const q = `
+	SELECT t.value, t.speaker, jt.no
+	FROM text AS t
+	    LEFT JOIN audio AS a ON t.id = a.text_id
+	    LEFT JOIN job_text AS jt ON t.id = jt.text_id
+	WHERE a.text_id IS NULL AND jt.job_id = ?
+	`
+
+	rows, err := db.conn.Query(q, jobId)
+	if err != nil {
+		return nil, err
+	}
+
+	var jobs []*job.Job  
+
+	for rows.Next() {
+		var tmp job.Job
+
+		if err := rows.Scan(&tmp.Content, &tmp.Speaker, &tmp.No); err != nil {
+			return nil, err
+		}
+
+		newJob := &job.Job{
+			Content: tmp.Content,
+			Speaker: tmp.Speaker,
+			No: tmp.No,
+			Id: uuid.New().String(),
+		}
+		
+		jobs = append(jobs, newJob)
+	}
+
+	return jobs, nil
 }
