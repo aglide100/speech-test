@@ -2,9 +2,29 @@ package db
 
 import (
 	"github.com/aglide100/speech-test/cluster/pkg/job"
+	"github.com/aglide100/speech-test/cluster/pkg/logger"
 	"github.com/aglide100/speech-test/cluster/pkg/request"
 	"github.com/google/uuid"
+	"go.uber.org/zap"
 )
+
+func (db *Database) GetAudio(textId int) ([]byte, error) {
+	const q = `
+	SELECT data
+	FROM audio AS a
+	WHERE a.text_id = ?
+	`
+
+	var data []byte
+
+	err := db.conn.QueryRow(q, textId).Scan(&data)
+	if err != nil {
+		return nil, err
+	}
+	
+	logger.Info("info", zap.Any("data", data))
+	return data, err
+}
 
 func (db *Database) GetTextId(text, speaker string) (int, error) {
 	const q = `
@@ -25,12 +45,12 @@ func (db *Database) GetIncompleteJob() ([]request.Request, error) {
 	const q = `
 	SELECT j.id AS job_id, j.speaker AS job_speaker, GROUP_CONCAT(t.value ORDER BY jt.no SEPARATOR ' ') AS text
 	FROM job j
-	         LEFT JOIN job_text jt ON j.id = jt.job_id
-	         LEFT JOIN text t ON jt.text_id = t.id
-	         LEFT JOIN (
-	    SELECT text_id, COUNT(*) AS audio_count
-	    FROM audio
-	    GROUP BY text_id
+	    LEFT JOIN job_text AS jt ON j.id = jt.job_id
+	    LEFT JOIN text AS t ON jt.text_id = t.id
+	    LEFT JOIN (
+	    	SELECT text_id, COUNT(*) AS audio_count
+	    	FROM audio
+	    	GROUP BY text_id
 	) AS a ON t.id = a.text_id
 	GROUP BY j.id, j.speaker, j.max_index
 	HAVING SUM(a.audio_count) != j.max_index OR SUM(a.audio_count) IS NULL

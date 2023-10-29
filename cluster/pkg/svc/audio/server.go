@@ -39,8 +39,17 @@ func NewAudioServiceServer(running, waiting *queue.PriorityQueue, token string, 
 }
 
 func (s *AudioSrv) GetAudio(ctx context.Context, in *pb_svc_audio.GetAudioReq) (*pb_svc_audio.Audio, error) {
+	res, err := s.db.GetAudio(int(in.JobId))
+	if err != nil {
+		logger.Error("!", zap.Error(err))
+	}
 
-	return nil, nil
+
+
+
+	return &pb_svc_audio.Audio{
+		Data: res,
+	}, nil
 }
 
 func (s *AudioSrv) MakingNewJob(ctx context.Context, in *pb_svc_audio.MakingNewJobReq) (*pb_svc_audio.Error, error) {
@@ -109,6 +118,8 @@ func (s *AudioSrv) CheckingJob(ctx context.Context, in *pb_svc_audio.CheckingJob
 		return &pb_svc_audio.CheckingJobRes{
 		}, nil
 	}
+
+	logger.Info("Pop in wating", zap.Any("who", in.Auth.Who), zap.Any("content", p.Value.Job.Content))
 
 	return &pb_svc_audio.CheckingJobRes{
 		Job: &pb_svc_audio.Job{

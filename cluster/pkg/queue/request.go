@@ -52,7 +52,7 @@ func (req *RequestQueue) RemoveRequest(target *request.Request) bool {
 }
 
 func (req *RequestQueue) RemoveJobInRequest(j *job.Job) (bool, *request.Request) {
-	logger.Info("RemoveJobInRequest", zap.Any("job", j))
+	logger.Debug("RemoveJobInRequest", zap.Any("job", j))
 	found := false
 	req_idx := -1
 	job_idx := -1

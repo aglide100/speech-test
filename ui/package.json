@@ -18,6 +18,7 @@
     "eslint": "8.47.0",
     "eslint-config-next": "13.4.19",
     "fs": "^0.0.1-security",
+    "hls.js": "^1.4.12",
     "http-proxy-middleware": "^2.0.6",
     "next": "13.4.19",
     "postcss": "8.4.28",

@@ -162,8 +162,8 @@ func (pq *PriorityQueue) CheckTimeOut() []*Item {
                 logger.Error("time is weird", zap.Any("tmp", tmp))
             } else {
                 duration := currentTime.Sub(tmp.Value.When)
-                if duration >= time.Hour*1 {
-                    logger.Info("Timeout!", zap.Any("item", tmp))
+                if duration >= time.Hour*2 {
+                    logger.Info("Timeout!", zap.Any("content", tmp.Value.Job.Content), zap.Any("by", tmp.Value.Who))
                     timedOutItems = append(timedOutItems, tmp)
                 } else {
                     nonTimedOutItems = append(nonTimedOutItems, tmp)

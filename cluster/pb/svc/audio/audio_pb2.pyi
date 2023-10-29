@@ -75,9 +75,9 @@ class MakingNewJobReq(_message.Message):
     def __init__(self, auth: _Optional[_Union[Auth, _Mapping]] = ..., content: _Optional[str] = ..., speaker: _Optional[str] = ..., path: _Optional[str] = ...) -> None: ...
 
 class GetAudioReq(_message.Message):
-    __slots__ = ["auth", "job"]
+    __slots__ = ["auth", "jobId"]
     AUTH_FIELD_NUMBER: _ClassVar[int]
-    JOB_FIELD_NUMBER: _ClassVar[int]
+    JOBID_FIELD_NUMBER: _ClassVar[int]
     auth: Auth
-    job: Job
-    def __init__(self, auth: _Optional[_Union[Auth, _Mapping]] = ..., job: _Optional[_Union[Job, _Mapping]] = ...) -> None: ...
+    jobId: int
+    def __init__(self, auth: _Optional[_Union[Auth, _Mapping]] = ..., jobId: _Optional[int] = ...) -> None: ...

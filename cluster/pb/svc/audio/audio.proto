@@ -47,7 +47,7 @@ message MakingNewJobReq {
 
 message GetAudioReq {
     Auth auth = 1;
-    Job job = 2;
+    int32 jobId = 2;
 }
 
 service AudioService {
