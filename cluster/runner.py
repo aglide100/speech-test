@@ -10,11 +10,16 @@ from dotenv import load_dotenv
 from transformers import AutoProcessor, BarkModel
 import torch
 import socket
+import ffmpeg
 
 options = [
     # ('grpc.keepalive_time_ms', 900000),
     ('grpc.keepalive_permit_without_calls', True)
 ]
+
+output_wav = 'output_wav.wav'
+output_aac = 'output.aac'
+output_ts = 'output.ts'
 
 
 def gen_grpc_stubs():
@@ -94,10 +99,19 @@ def main():
             audio_array = audio_array.cpu().numpy().squeeze()
             millisec = (len(audio_array) /
                         model.generation_config.sample_rate) * 1000
-            write_wav('output.wav',
+            write_wav(output_wav,
                       model.generation_config.sample_rate, audio_array)
 
-            with open('output.wav', 'rb') as fd:
+            input_wav_stream = ffmpeg.input(output_wav)
+            output_aac_stream = ffmpeg.output(
+                input_wav_stream, output_aac, codec='aac')
+            ffmpeg.run(output_aac_stream, overwrite_output=True)
+
+            audio_stream = ffmpeg.input(output_aac)
+            output_ts_stream = ffmpeg.output(audio_stream, output_ts)
+            ffmpeg.run(output_ts_stream, overwrite_output=True)
+
+            with open(output_ts, 'rb') as fd:
                 serialized_audio = fd.read()
                 print("sending : ", len(serialized_audio))
                 call_sending_result(stub, serialized_audio, millisec, token,

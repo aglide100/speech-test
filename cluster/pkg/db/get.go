@@ -22,7 +22,7 @@ func (db *Database) GetAudio(textId int) ([]byte, error) {
 		return nil, err
 	}
 	
-	logger.Info("info", zap.Any("data", data))
+	logger.Debug("info", zap.Any("data", data))
 	return data, err
 }
 

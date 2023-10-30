@@ -11,3 +11,4 @@ transformers
 torch
 python-dotenv
 scipy
+ffmpeg-python
