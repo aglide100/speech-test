@@ -50,11 +50,11 @@ services:
             labels:
                 - traefik.enable=true
                 - traefik.docker.network=traefik-network
-                - traefik.http.routers.speech.rule=Host(`api.${Domain1}`)
+                - traefik.http.routers.speech.rule=Host(`stream.${Domain1}`)
                 - traefik.http.routers.speech.middlewares=redirect-to-https
                 - traefik.http.routers.speech.entrypoints=web
-                - traefik.http.services.speech.loadbalancer.server.port=80
-                - traefik.http.routers.speech--https.rule=Host(`api.${Domain1}`)
+                - traefik.http.services.speech.loadbalancer.server.port=9090
+                - traefik.http.routers.speech--https.rule=Host(`stream.${Domain1}`)
                 - traefik.http.routers.speech--https.tls=true
                 - traefik.http.routers.speech--https.tls.certresolver=myresolver
                 - traefik.http.routers.speech--https.entrypoints=websecure
