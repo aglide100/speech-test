@@ -18,7 +18,6 @@ services:
             replicas: 1
             update_config:
                 parallelism: 2
-                order: start-first
                 failure_action: rollback
                 delay: 10s
             restart_policy:
@@ -33,12 +32,14 @@ services:
         hostname: stream
         networks:
             - traefik-network
+        environment:
+            TOKEN: ${TOKEN}
+            DSN: ${DSN}
         deploy:
             mode: replicated
             replicas: 1
             update_config:
                 parallelism: 2
-                order: start-first
                 failure_action: rollback
                 delay: 10s
             restart_policy:
