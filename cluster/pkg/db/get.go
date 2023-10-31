@@ -41,6 +41,36 @@ func (db *Database) GetTextId(text, speaker string) (int, error) {
 	return textId, nil
 }
 
+func (db *Database) GetAudioIds(jobId int) ([]job.Audio, error) {
+	const q = `
+	SELECT a.text_id AS Name, a.sec AS Duration, jt.no
+	FROM audio AS a 
+		LEFT JOIN job_text jt ON a.text_id = jt.text_id
+	WHERE jt.job_id = ?
+	ORDER BY jt.no
+	`
+
+	rows, err := db.conn.Query(q, jobId)
+	if err != nil {
+		return nil, err
+	}
+	var data []job.Audio
+	
+	for rows.Next() {
+		var a job.Audio
+
+		if err := rows.Scan(&a.Name, &a.Duration, &a.No); err != nil {
+			return nil, err
+		}
+		a.Name = a.Name + ".ts"
+		a.Duration = float32(float64(a.Duration / 1000))
+
+		data = append(data, a)
+	}
+
+	return data, nil
+}
+
 func (db *Database) GetIncompleteJob() ([]request.Request, error) {
 	const q = `
 	SELECT j.id AS job_id, j.speaker AS job_speaker, GROUP_CONCAT(t.value ORDER BY jt.no SEPARATOR ' ') AS text

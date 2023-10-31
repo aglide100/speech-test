@@ -21,6 +21,8 @@ output_wav = 'output_wav.wav'
 output_aac = 'output.aac'
 output_ts = 'output.ts'
 
+model = None
+
 
 def gen_grpc_stubs():
     channel = grpc.insecure_channel(address, options=options)
@@ -38,11 +40,11 @@ def call_checking_jobs(stub: audio_pb2_grpc.AudioServiceStub):
     return response
 
 
-def call_sending_result(stub: audio_pb2_grpc.AudioServiceStub, audio, millisec, token, who, content, speaker, id, no):
+def call_sending_result(stub: audio_pb2_grpc.AudioServiceStub, audio, sec, token, who, content, speaker, id, no):
     request = audio_pb2.SendingResultReq(
         audio=audio_pb2.Audio(
             data=audio,
-            millisec=millisec
+            sec=sec
         ),
         auth=audio_pb2.Auth(
             token=token,
@@ -97,8 +99,8 @@ def main():
 
             audio_array = model.generate(**inputs)
             audio_array = audio_array.cpu().numpy().squeeze()
-            millisec = (len(audio_array) /
-                        model.generation_config.sample_rate) * 1000
+            # sec = (len(audio_array) /
+            #        model.generation_config.sample_rate) * 1000
             write_wav(output_wav,
                       model.generation_config.sample_rate, audio_array)
 
@@ -111,10 +113,14 @@ def main():
             output_ts_stream = ffmpeg.output(audio_stream, output_ts)
             ffmpeg.run(output_ts_stream, overwrite_output=True)
 
+            probe = ffmpeg.probe(
+                output_ts, v='error', select_streams='a:0', show_entries='format=duration')
+            sec = float(probe['format']['duration'])
+
             with open(output_ts, 'rb') as fd:
                 serialized_audio = fd.read()
                 print("sending : ", len(serialized_audio))
-                call_sending_result(stub, serialized_audio, millisec, token,
+                call_sending_result(stub, serialized_audio, sec, token,
                                     who, job.content, job.speaker, job.id, job.no)
 
         time.sleep(60)

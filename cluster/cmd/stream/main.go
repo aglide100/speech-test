@@ -5,12 +5,14 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/aglide100/speech-test/cluster/pkg/controller"
 	"github.com/aglide100/speech-test/cluster/pkg/db"
+	"github.com/patrickmn/go-cache"
 )
 
 
-var myDB *db.Database
 func main() {
 	if err := realMain(); err != nil {
 		log.Printf("err :%v", err)
@@ -19,26 +21,26 @@ func main() {
 }
 
 func realMain() error {
-	const mediaDir = "output"
 	const port = 9090
 	
-	conn, err := db.NewDB()
+	myDB, err := db.NewDB()
 	if err != nil {
 		return err
 	}
+	
+	c := cache.New(5*time.Minute, 10*time.Minute)
 
-	myDB = conn
+	ctl := controller.NewHlsController(myDB, c)
 
-
-
-	http.HandleFunc("/byte", addHeaders(http.HandlerFunc(byteHandler)))
-	http.Handle("/", addHeaders(http.FileServer(http.Dir(mediaDir))))
+	http.HandleFunc("/playlist/", addHeaders(http.HandlerFunc(ctl.ServePlaylist)))
+	http.HandleFunc("/", addHeaders(http.HandlerFunc(ctl.FileHandler)))
 	fmt.Printf("Starting server on %v\n", port)
 	log.Printf("Serving on : %d\n", port)
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", port), nil))
 	return nil
 }
+
 
 func addHeaders(h http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -54,16 +56,3 @@ func addHeaders(h http.Handler) http.HandlerFunc {
 	}
 }
 
-func byteHandler(w http.ResponseWriter, r *http.Request) {
-	data, err := myDB.GetAudio(34)
-	if err != nil {
-		log.Panicf("err ", err.Error())
-	}
-
-	// w.Header().Set("Content-Type", "application/octet-stream")
-	
-	_, err = w.Write(data)
-	if err != nil {
-		http.Error(w, "Failed to write response", http.StatusInternalServerError)
-	}
-}

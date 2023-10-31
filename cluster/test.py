@@ -1,4 +1,5 @@
 
+import re
 import scipy
 from transformers import AutoProcessor, BarkModel
 import ffmpeg
@@ -46,3 +47,24 @@ audio_stream = ffmpeg.input(output_aac)
 
 output_ts_stream = ffmpeg.output(audio_stream, output_ts)
 ffmpeg.run(output_ts_stream, overwrite_output=True)
+
+
+pattern = r'#EXTINF:(\d+\.\d+),'
+with open(output_ts, 'rb') as file:
+    content = file.read().decode('utf-8', errors='ignore')  # 'utf-8' 인코딩 오류를 무시
+
+extinf_match = re.search(pattern, content)
+
+if extinf_match:
+    extinf_value = float(extinf_match.group(1))
+    print(f"EXTINF value for {output_ts}: {extinf_value} seconds")
+else:
+    print("EXTINF value not found in the segment file.")
+
+input_stream = ffmpeg.input(output_ts)
+
+probe = ffmpeg.probe(output_ts, v='error',
+                     select_streams='a:0', show_entries='format=duration')
+duration = float(probe['format']['duration'])
+
+print(f"duration: {duration} 초")

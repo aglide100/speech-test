@@ -154,7 +154,7 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 			}, err
 		}
 	
-		err = s.db.SaveAudio(textId, in.Audio.Data, in.Audio.Millisec, in.Job.Speaker)
+		err = s.db.SaveAudio(textId, in.Audio.Data, in.Audio.Sec, in.Job.Speaker)
 		if err != nil {
 			return &pb_svc_audio.Error{
 				Msg: "Internal error",

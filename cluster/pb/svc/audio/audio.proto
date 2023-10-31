@@ -4,7 +4,7 @@ option go_package = "github.com/aglide100/speech-test/cluster/pb/svc/audio";
 
 message Audio {
     bytes data = 1;
-    float millisec = 2;
+    float sec = 2;
 }
 
 message Error {

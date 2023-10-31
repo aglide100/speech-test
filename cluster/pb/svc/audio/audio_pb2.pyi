@@ -5,12 +5,12 @@ from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Opti
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class Audio(_message.Message):
-    __slots__ = ["data", "millisec"]
+    __slots__ = ["data", "sec"]
     DATA_FIELD_NUMBER: _ClassVar[int]
-    MILLISEC_FIELD_NUMBER: _ClassVar[int]
+    SEC_FIELD_NUMBER: _ClassVar[int]
     data: bytes
-    millisec: float
-    def __init__(self, data: _Optional[bytes] = ..., millisec: _Optional[float] = ...) -> None: ...
+    sec: float
+    def __init__(self, data: _Optional[bytes] = ..., sec: _Optional[float] = ...) -> None: ...
 
 class Error(_message.Message):
     __slots__ = ["msg"]

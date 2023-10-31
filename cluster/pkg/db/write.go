@@ -8,14 +8,14 @@ import (
 	"go.uber.org/zap"
 )
 
-func (db *Database) SaveAudio(textId int, audio []byte, millisec float32, speaker string) error {
+func (db *Database) SaveAudio(textId int, audio []byte, sec float32, speaker string) error {
 	const q = `
-	INSERT INTO audio(data, speaker, text_id, millisec)
+	INSERT INTO audio(data, speaker, text_id, sec)
    		VALUES (?, ?, ?, ?)
 	`
 
-	logger.Info("SaveAudio", zap.Any("speaker", speaker), zap.Any("textId", textId), zap.Any("millisec", millisec))
-	_, err := db.conn.Exec(q, audio, speaker, textId, millisec)
+	logger.Info("SaveAudio", zap.Any("speaker", speaker), zap.Any("textId", textId), zap.Any("sec", sec))
+	_, err := db.conn.Exec(q, audio, speaker, textId, sec)
 	if err != nil {
 		logger.Error("Can't insert Audio", zap.Error(err))
 		return err

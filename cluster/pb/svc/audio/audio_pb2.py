@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18pb/svc/audio/audio.proto\"\'\n\x05\x41udio\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12\x10\n\x08millisec\x18\x02 \x01(\x02\"\x14\n\x05\x45rror\x12\x0b\n\x03msg\x18\x01 \x01(\t\"\"\n\x04\x41uth\x12\r\n\x05token\x18\x01 \x01(\t\x12\x0b\n\x03who\x18\x02 \x01(\t\"?\n\x03Job\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\x0f\n\x07speaker\x18\x02 \x01(\t\x12\n\n\x02id\x18\x03 \x01(\t\x12\n\n\x02no\x18\x04 \x01(\x05\"%\n\x0e\x43heckingJobReq\x12\x13\n\x04\x61uth\x18\x01 \x01(\x0b\x32\x05.Auth\":\n\x0e\x43heckingJobRes\x12\x11\n\x03job\x18\x01 \x01(\x0b\x32\x04.Job\x12\x15\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x06.Error\"Q\n\x10SendingResultReq\x12\x15\n\x05\x61udio\x18\x01 \x01(\x0b\x32\x06.Audio\x12\x13\n\x04\x61uth\x18\x02 \x01(\x0b\x32\x05.Auth\x12\x11\n\x03job\x18\x03 \x01(\x0b\x32\x04.Job\"V\n\x0fMakingNewJobReq\x12\x13\n\x04\x61uth\x18\x01 \x01(\x0b\x32\x05.Auth\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\x12\x0f\n\x07speaker\x18\x03 \x01(\t\x12\x0c\n\x04path\x18\x04 \x01(\t\"1\n\x0bGetAudioReq\x12\x13\n\x04\x61uth\x18\x01 \x01(\x0b\x32\x05.Auth\x12\r\n\x05jobId\x18\x02 \x01(\x05\x32\xb7\x01\n\x0c\x41udioService\x12 \n\x08GetAudio\x12\x0c.GetAudioReq\x1a\x06.Audio\x12(\n\x0cMakingNewJob\x12\x10.MakingNewJobReq\x1a\x06.Error\x12/\n\x0b\x43heckingJob\x12\x0f.CheckingJobReq\x1a\x0f.CheckingJobRes\x12*\n\rSendingResult\x12\x11.SendingResultReq\x1a\x06.ErrorB7Z5github.com/aglide100/speech-test/cluster/pb/svc/audiob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18pb/svc/audio/audio.proto\"\"\n\x05\x41udio\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12\x0b\n\x03sec\x18\x02 \x01(\x02\"\x14\n\x05\x45rror\x12\x0b\n\x03msg\x18\x01 \x01(\t\"\"\n\x04\x41uth\x12\r\n\x05token\x18\x01 \x01(\t\x12\x0b\n\x03who\x18\x02 \x01(\t\"?\n\x03Job\x12\x0f\n\x07\x63ontent\x18\x01 \x01(\t\x12\x0f\n\x07speaker\x18\x02 \x01(\t\x12\n\n\x02id\x18\x03 \x01(\t\x12\n\n\x02no\x18\x04 \x01(\x05\"%\n\x0e\x43heckingJobReq\x12\x13\n\x04\x61uth\x18\x01 \x01(\x0b\x32\x05.Auth\":\n\x0e\x43heckingJobRes\x12\x11\n\x03job\x18\x01 \x01(\x0b\x32\x04.Job\x12\x15\n\x05\x65rror\x18\x02 \x01(\x0b\x32\x06.Error\"Q\n\x10SendingResultReq\x12\x15\n\x05\x61udio\x18\x01 \x01(\x0b\x32\x06.Audio\x12\x13\n\x04\x61uth\x18\x02 \x01(\x0b\x32\x05.Auth\x12\x11\n\x03job\x18\x03 \x01(\x0b\x32\x04.Job\"V\n\x0fMakingNewJobReq\x12\x13\n\x04\x61uth\x18\x01 \x01(\x0b\x32\x05.Auth\x12\x0f\n\x07\x63ontent\x18\x02 \x01(\t\x12\x0f\n\x07speaker\x18\x03 \x01(\t\x12\x0c\n\x04path\x18\x04 \x01(\t\"1\n\x0bGetAudioReq\x12\x13\n\x04\x61uth\x18\x01 \x01(\x0b\x32\x05.Auth\x12\r\n\x05jobId\x18\x02 \x01(\x05\x32\xb7\x01\n\x0c\x41udioService\x12 \n\x08GetAudio\x12\x0c.GetAudioReq\x1a\x06.Audio\x12(\n\x0cMakingNewJob\x12\x10.MakingNewJobReq\x1a\x06.Error\x12/\n\x0b\x43heckingJob\x12\x0f.CheckingJobReq\x1a\x0f.CheckingJobRes\x12*\n\rSendingResult\x12\x11.SendingResultReq\x1a\x06.ErrorB7Z5github.com/aglide100/speech-test/cluster/pb/svc/audiob\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -23,23 +23,23 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z5github.com/aglide100/speech-test/cluster/pb/svc/audio'
   _globals['_AUDIO']._serialized_start=28
-  _globals['_AUDIO']._serialized_end=67
-  _globals['_ERROR']._serialized_start=69
-  _globals['_ERROR']._serialized_end=89
-  _globals['_AUTH']._serialized_start=91
-  _globals['_AUTH']._serialized_end=125
-  _globals['_JOB']._serialized_start=127
-  _globals['_JOB']._serialized_end=190
-  _globals['_CHECKINGJOBREQ']._serialized_start=192
-  _globals['_CHECKINGJOBREQ']._serialized_end=229
-  _globals['_CHECKINGJOBRES']._serialized_start=231
-  _globals['_CHECKINGJOBRES']._serialized_end=289
-  _globals['_SENDINGRESULTREQ']._serialized_start=291
-  _globals['_SENDINGRESULTREQ']._serialized_end=372
-  _globals['_MAKINGNEWJOBREQ']._serialized_start=374
-  _globals['_MAKINGNEWJOBREQ']._serialized_end=460
-  _globals['_GETAUDIOREQ']._serialized_start=462
-  _globals['_GETAUDIOREQ']._serialized_end=511
-  _globals['_AUDIOSERVICE']._serialized_start=514
-  _globals['_AUDIOSERVICE']._serialized_end=697
+  _globals['_AUDIO']._serialized_end=62
+  _globals['_ERROR']._serialized_start=64
+  _globals['_ERROR']._serialized_end=84
+  _globals['_AUTH']._serialized_start=86
+  _globals['_AUTH']._serialized_end=120
+  _globals['_JOB']._serialized_start=122
+  _globals['_JOB']._serialized_end=185
+  _globals['_CHECKINGJOBREQ']._serialized_start=187
+  _globals['_CHECKINGJOBREQ']._serialized_end=224
+  _globals['_CHECKINGJOBRES']._serialized_start=226
+  _globals['_CHECKINGJOBRES']._serialized_end=284
+  _globals['_SENDINGRESULTREQ']._serialized_start=286
+  _globals['_SENDINGRESULTREQ']._serialized_end=367
+  _globals['_MAKINGNEWJOBREQ']._serialized_start=369
+  _globals['_MAKINGNEWJOBREQ']._serialized_end=455
+  _globals['_GETAUDIOREQ']._serialized_start=457
+  _globals['_GETAUDIOREQ']._serialized_end=506
+  _globals['_AUDIOSERVICE']._serialized_start=509
+  _globals['_AUDIOSERVICE']._serialized_end=692
 # @@protoc_insertion_point(module_scope)

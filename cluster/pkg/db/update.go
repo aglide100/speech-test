@@ -9,12 +9,12 @@ func (db *Database) UpdateTotalPlayingTime(jobId int) error {
 	const q = `
 	UPDATE job AS j
     	LEFT JOIN (
-    	    SELECT jt.job_id, SUM(a.millisec) AS total_millisec
+    	    SELECT jt.job_id, SUM(a.sec) AS total_sec
     	    FROM job_text AS jt
     	        LEFT JOIN audio AS a ON a.text_id = jt.text_id
     	    GROUP BY jt.job_id
     	) AS sub ON j.id = sub.job_id
-	SET j.playing_time = IFNULL(sub.total_millisec, 0)
+	SET j.playing_time = IFNULL(sub.total_sec, 0)
 	WHERE j.id = ?
 	`
 
