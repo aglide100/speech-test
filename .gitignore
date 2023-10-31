@@ -3,6 +3,9 @@
 .DS_Store
 .venv
 *.wav
+*.aac
+*.ts
+*.m3u8
 __pycache__
 .env
 .env copy
