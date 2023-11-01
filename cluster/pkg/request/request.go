@@ -2,6 +2,7 @@ package request
 
 import (
 	"github.com/aglide100/speech-test/cluster/pkg/job"
+	"github.com/aglide100/speech-test/cluster/pkg/txt"
 	"github.com/google/uuid"
 )
 
@@ -17,7 +18,8 @@ func MakeRequest(text string, speaker string) (*Request, error) {
 
 	jobs := []*job.Job{}
 
-	texts, err := job.DivideTest(text)
+	
+	texts, err := txt.DivideText(text)
 	if err != nil {
 		return nil, err
 	}

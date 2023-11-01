@@ -72,5 +72,4 @@ func (hdl *HlsController) ServePlaylist(w http.ResponseWriter, r *http.Request) 
 	w.Header().Set("Content-Type", "application/x-mpegurl")
 	
 	t.Execute(w, data)
-
 }

@@ -149,7 +149,7 @@ func (pq *PriorityQueue) GetNotAllocate() (job.Job, bool) {
 	return job.Job{}, false
 }
 
-func (pq *PriorityQueue) CheckTimeOut() []*Item {
+func (pq *PriorityQueue) CheckTimeOut(t int) []*Item {
     currentTime := time.Now()
     var timedOutItems []*Item
     var nonTimedOutItems []*Item
@@ -162,7 +162,7 @@ func (pq *PriorityQueue) CheckTimeOut() []*Item {
                 logger.Error("time is weird", zap.Any("tmp", tmp))
             } else {
                 duration := currentTime.Sub(tmp.Value.When)
-                if duration >= time.Hour*2 {
+                if duration >= time.Hour * time.Duration(t) {
                     logger.Info("Timeout!", zap.Any("content", tmp.Value.Job.Content), zap.Any("by", tmp.Value.Who))
                     timedOutItems = append(timedOutItems, tmp)
                 } else {

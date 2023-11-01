@@ -9,7 +9,9 @@ import (
 
 	"github.com/aglide100/speech-test/cluster/pkg/controller"
 	"github.com/aglide100/speech-test/cluster/pkg/db"
+	"github.com/aglide100/speech-test/cluster/pkg/logger"
 	"github.com/patrickmn/go-cache"
+	"go.uber.org/zap"
 )
 
 
@@ -34,9 +36,8 @@ func realMain() error {
 
 	http.HandleFunc("/playlist/", addHeaders(http.HandlerFunc(ctl.ServePlaylist)))
 	http.HandleFunc("/", addHeaders(http.HandlerFunc(ctl.FileHandler)))
-	fmt.Printf("Starting server on %v\n", port)
-	log.Printf("Serving on : %d\n", port)
-
+	
+	logger.Info("Starting server on ", zap.Any("port", port))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", port), nil))
 	return nil
 }

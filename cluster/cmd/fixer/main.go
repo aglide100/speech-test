@@ -20,8 +20,10 @@ import (
 	"google.golang.org/grpc"
 )
 var (
-	managerAddr = flag.String("manager grpc addr", "0.0.0.0:50012", "grpc address")
+	managerAddr = flag.String("addr", "0.0.0.0:50012", "grpc address")
+	timeOutTime = flag.Int("timeout", 5, "hour")
 )
+
 
 func main() {
 	if err := realMain(); err != nil {
@@ -83,7 +85,7 @@ func realMain() error {
 
 		for range ticker.C {
 			mutex.Lock()
-			items := running.CheckTimeOut()
+			items := running.CheckTimeOut(*timeOutTime)
 
 			if len(items) >= 1 {
 				for _, val := range items {
