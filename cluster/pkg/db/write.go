@@ -10,8 +10,8 @@ import (
 
 func (db *Database) SaveAudio(textId int, audio []byte, sec float32, speaker string) error {
 	const q = `
-	INSERT INTO audio(data, speaker, text_id, sec)
-   		VALUES (?, ?, ?, ?)
+	INSERT INTO audio(data, speaker, text_id, sec, written_date)
+   		VALUES (?, ?, ?, ?, now())
 	`
 
 	logger.Info("SaveAudio", zap.Any("speaker", speaker), zap.Any("textId", textId), zap.Any("sec", sec))

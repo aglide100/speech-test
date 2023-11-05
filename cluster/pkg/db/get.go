@@ -142,7 +142,6 @@ func (db *Database) GetCompleteJob(limit, offset int) ([]*job.Job, error) {
 		) AS a ON jt.text_id = a.text_id
 	GROUP BY j.id, j.speaker, j.max_index
 	HAVING SUM(a.audio_count) = j.max_index
-	    OR SUM(a.audio_count) IS NOT NULL
 	LIMIT ? OFFSET ?
 	`
 

@@ -33,7 +33,7 @@ func realMain() error {
 	c := cache.New(5*time.Minute, 10*time.Minute)
 
 	ctl := controller.NewHlsController(myDB, c)
-
+	http.HandleFunc("/job/", addHeaders(http.HandlerFunc(ctl.ServeJobList)))
 	http.HandleFunc("/playlist/", addHeaders(http.HandlerFunc(ctl.ServePlaylist)))
 	http.HandleFunc("/", addHeaders(http.HandlerFunc(ctl.FileHandler)))
 	
@@ -45,7 +45,7 @@ func realMain() error {
 
 func addHeaders(h http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		// w.Header().Set("Access-Control-Allow-Origin", "*")
 
 		if r.Method == "OPTIONS" {
 			w.Header().Set("Access-Control-Allow-Methods", "GET, OPTIONS")

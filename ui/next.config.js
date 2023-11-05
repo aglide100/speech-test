@@ -1,13 +1,15 @@
 /** @type {import('next').NextConfig} */
-const { createProxyMiddleware } = require("http-proxy-middleware");
+// const { createProxyMiddleware } = require("http-proxy-middleware");
 
+const addr = process.env.ADDR;
+// process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 const nextConfig = {
     reactStrictMode: true,
     async rewrites() {
         return [
             {
                 source: "/data/:path*",
-                destination: `http://localhost:9090` + `/:path*`,
+                destination: addr + `/:path*`,
             },
         ];
     },
