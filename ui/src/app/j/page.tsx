@@ -26,18 +26,22 @@ export default function Home({
             getJobList((result: any) => {
                 let list: DataType[] = [];
 
-                result.data.map((d: any) => {
-                    const tmp: DataType = {
-                        Id: d.Id,
-                        Content: d.Content,
-                        PlayingTime: d.PlayingTime,
-                        Speaker: d.Speaker,
-                        background:
-                            "#" + Math.random().toString(16).slice(2, 8),
-                    };
+                result.data.map(
+                    (d: any) => {
+                        const tmp: DataType = {
+                            Id: d.Id,
+                            Content: d.Content,
+                            PlayingTime: d.PlayingTime,
+                            Speaker: d.Speaker,
+                            background:
+                                "#" + Math.random().toString(16).slice(2, 8),
+                        };
 
-                    list.push(tmp);
-                });
+                        list.push(tmp);
+                    },
+                    0,
+                    0
+                );
 
                 setData(list);
                 setIsLoading(false);

@@ -22,7 +22,7 @@ export const Content = (props: ContentData) => {
             ></ReactHlsPlayer>
             <motion.div
                 layoutId={`card-${props.id}`}
-                className="w-auto h-auto mt-5 text-left text-white leading-relaxed"
+                className="w-auto h-auto mt-5 text-left text-white leading-relaxed font-serif"
             >
                 {props.data}
             </motion.div>

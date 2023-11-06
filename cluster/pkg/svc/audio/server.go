@@ -144,7 +144,7 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 
 	logger.Debug("running", zap.Any("running", s.running))
 	if !found {
-		logger.Error("Can't remove from running", zap.Any("running", s.running))
+		logger.Info("Can't remove from running", zap.Any("running", s.running))
 	}
 
 	ok, result, last := s.requests.RemoveJobInRequest(&job.Job{
