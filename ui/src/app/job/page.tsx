@@ -2,43 +2,13 @@
 import React, { useEffect } from "react";
 
 import { List } from "@/component/ItemList/ItemList";
-import Item from "../../component/Item/Item";
+import Item, { DataType } from "../../component/Item/Item";
 
 import { useState } from "react";
 import { getJobList } from "@/util/fetch";
-const items: any[] = [
-    {
-        id: "1",
-        category: "",
-        title: "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-    },
-    {
-        id: "2",
-        category: "",
-        title: "Quisque sed interdum ligula, ut ullamcorper libero",
-    },
-    {
-        id: "3",
-        category: "",
-        title: "Praesent finibus est non est pellentesque placerat",
-    },
-    {
-        id: "4",
-        category: "",
-        title: "Pellentesque pharetra scelerisque sem non blandit",
-    },
-    {
-        id: "5",
-        category: "",
-        title: "Mauris eu mauris fringilla",
-    },
-    {
-        id: "6",
-        category: "",
-        title: "ccumsan lorem eu",
-    },
-];
 
+import { AnimatePresence, motion } from "framer-motion";
+import { Overlay } from "@/component/Overlay/Overlay";
 export default function Home({
     params,
     searchParams,
@@ -46,51 +16,64 @@ export default function Home({
     params: { slug: string };
     searchParams: { [key: string]: string | string[] | undefined };
 }) {
-    const [data, setData] = useState();
+    const [data, setData] = useState<DataType[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const [current, setCurrent] = useState("");
-    const [category, setCategory] = useState("");
-    const [title, setTitle] = useState("");
-    const [background, setBackground] = useState("");
+    const [current, setCurrent] = useState<DataType>();
 
     useEffect(() => {
         if (isLoading) {
             getJobList((result: any) => {
-                // setCurrent(result);
+                let list: DataType[] = [];
+
+                result.data.map((d: any) => {
+                    const tmp: DataType = {
+                        Id: d.Id,
+                        Content: d.Content,
+                        PlayingTime: d.PlayingTime,
+                        Speaker: d.Speaker,
+                        background:
+                            "#" + Math.random().toString(16).slice(2, 8),
+                    };
+
+                    list.push(tmp);
+                });
+
+                setData(list);
                 setIsLoading(false);
-                console.log(data);
             });
         }
-    });
+    }, [isLoading]);
 
-    console.log("current :", current);
     return (
         <>
-            {current != "" ? (
+            {!isLoading && (
                 <>
-                    <Item
-                        id={current}
-                        category={category}
-                        title={title}
-                        background={background}
-                        handler={(id: string) => {
-                            setCurrent("");
+                    <AnimatePresence>
+                        {current && (
+                            <>
+                                <Overlay
+                                    handler={() => {
+                                        setCurrent(undefined);
+                                    }}
+                                ></Overlay>
+                                <Item
+                                    data={current}
+                                    handler={(id: string) => {
+                                        setCurrent(undefined);
+                                    }}
+                                ></Item>
+                            </>
+                        )}
+                    </AnimatePresence>
+                    <List
+                        items={data}
+                        handler={(data: DataType) => {
+                            setCurrent(data);
                         }}
-                    ></Item>
+                    />
                 </>
-            ) : (
-                <></>
             )}
-            <List
-                items={items}
-                handler={(id: string, t: string, c: string, bg: string) => {
-                    setCurrent(id);
-                    setTitle(t);
-                    setCategory(c);
-                    setBackground(bg);
-                }}
-            />
         </>
     );
 }

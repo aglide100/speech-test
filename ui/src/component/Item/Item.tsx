@@ -1,28 +1,27 @@
 "use client";
 import { motion, useMotionValue } from "framer-motion";
-import { Content } from "../Content/Content";
+import { Content as ContentBlock } from "../Content/Content";
 import { closeSpring, openSpring } from "@/hook/animation";
 import { useRef } from "react";
 import { useScrollConstraints } from "@/hook/useScrollConstraints";
 import { useWheelScroll } from "@/hook/useWheelScroll";
 
-export interface ItemProps {
-    id: string;
-    category: string;
-    title: string;
+export interface DataType {
+    Id: string;
+    Speaker: string;
+    PlayingTime: Float32Array;
+    Content: string;
     background: string;
+}
+
+export interface ItemProps {
+    data: DataType;
     handler(id: string): void;
 }
 
 const dismissDistance = 150;
 
-export default function Item({
-    id,
-    category,
-    title,
-    background,
-    handler,
-}: ItemProps) {
+export default function Item({ data, handler }: ItemProps) {
     const y = useMotionValue(0);
 
     const rootRef = useRef(null);
@@ -31,72 +30,63 @@ export default function Item({
     const constraints = useScrollConstraints(itemRef, true);
 
     function checkSwipeToDismiss() {
-        y.get() > dismissDistance && handler(id);
+        y.get() > dismissDistance && handler(data.Id);
     }
 
     useWheelScroll(rootRef, y, constraints, checkSwipeToDismiss, true);
     return (
-        <motion.div ref={rootRef}>
+        <motion.div
+            ref={rootRef}
+            className="fixed top-0 left-0 right-0 z-20 w-full  overflow-hidden p-10"
+        >
             <motion.div
-                onClick={(e) => {
-                    e.preventDefault();
-                    handler(id);
-                }}
-                layoutId="overlay"
-                exit={{ opacity: 1 }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.75, backgroundColor: "black" }}
-                transition={{ duration: 0.3 }}
-                className="fixed top-0 bottom-0 w-full h-full z-10"
-            ></motion.div>
-            <motion.div className="fixed top-0 left-0 right-0 z-20 overflow-hidden p-10">
+                ref={itemRef}
+                layoutId={`card-container-${data.Id}`}
+                initial={openSpring}
+                exit={closeSpring}
+                drag={"y"}
+                dragConstraints={{ top: -30, bottom: 30 }}
+                className="pointer-events-auto relative rounded-lg overflow-hidden w-full md:w-3/4 h-full mx-auto border-solid border-1 border-black shadow-xl"
+                style={{ backgroundColor: "#1c1c1e", y: y }}
+            >
                 <motion.div
-                    ref={itemRef}
-                    layoutId={`card-container-${id}`}
-                    initial={openSpring}
-                    exit={closeSpring}
-                    drag={"y"}
-                    dragConstraints={{ top: -10, bottom: 10 }}
-                    className="pointer-events-auto relative rounded-lg overflow-hidden w-full md:w-3/4 h-full mx-auto"
-                    style={{ backgroundColor: "#1c1c1e", y: y }}
+                    className="relative top-0 left-0 overflow-hidden w-full"
+                    layoutId={`card-image-container-${data.Id}`}
                 >
-                    <motion.div
-                        className="relative top-0 left-0 overflow-hidden w-full"
-                        layoutId={`card-image-container-${id}`}
+                    <div
+                        className="text-white text-2xl absolute top-2 left-5 z-20"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            handler(data.Id);
+                        }}
                     >
-                        <div
-                            className="text-white text-2xl absolute top-2 left-5 z-20"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                handler(id);
-                            }}
-                        >
-                            {"<"}
-                        </div>
-                        <div
-                            className="w-full h-80"
-                            // style={{ backgroundColor: background }}
-                        ></div>
-                        {/* <img
+                        {"<"}
+                    </div>
+                    <div
+                        className="w-full h-80"
+                        style={{ backgroundColor: data.background }}
+                    ></div>
+                    {/* <img
                             className="w-full h-80"
                             src={`/images/${id}.jpg`}
                             alt=""
                         /> */}
 
-                        <motion.div
-                            className=" absolute top-3 left-11"
-                            layoutId={`title-container-${id}`}
-                        >
-                            <span className="text-white text-2xl uppercase">
-                                {category}
-                            </span>
-                            <h2 className="text-white text-xl my-2">{title}</h2>
-                        </motion.div>
+                    <motion.div
+                        className="absolute top-4 left-11"
+                        layoutId={`title-container-${data.Id}`}
+                    >
+                        <span className="text-white text-base uppercase">
+                            {data.Id}
+                        </span>
+                        <p className="text-white text-2xl my-2 line-clamp-1">
+                            {data.Content}
+                        </p>
                     </motion.div>
+                </motion.div>
 
-                    <motion.div className="relative z-30 w-auto h-auto p-5  mt-10">
-                        <Content id={id} />
-                    </motion.div>
+                <motion.div className="relative z-30 w-auto h-auto p-5  mt-10">
+                    <ContentBlock id={data.Id} data={data.Content} />
                 </motion.div>
             </motion.div>
         </motion.div>

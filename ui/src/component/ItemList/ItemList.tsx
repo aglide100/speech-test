@@ -1,27 +1,20 @@
 import React from "react";
 import { motion } from "framer-motion";
 import classNames from "classnames";
+import { DataType } from "../Item/Item";
 
 export interface CardProps {
-    id: string;
     idx: number;
-    title: string;
-    category: string;
-    background: string;
-    handler(
-        id: string,
-        title: string,
-        category: string,
-        background: string
-    ): void;
+    data: DataType;
+    handler(data: DataType): void;
 }
 
-function Card({ id, idx, title, category, background, handler }: CardProps) {
+function Card({ data, idx, handler }: CardProps) {
     return (
         <motion.li
-            layoutId={`Item-${id}`}
+            layoutId={`Item-${data.Id}`}
             className={classNames(
-                "relative p-6 h-72 w-full basis-full md:w-2/4",
+                "relative p-6 h-72 w-full basis-full md:w-2/4 ",
                 idx % 2 == 0 ? "md:pr-0" : "md:pl-0",
                 idx % 4 == 1 || idx % 4 == 0
                     ? "flex-grow-0 flex-shrink-0 md:basis-3/5"
@@ -29,22 +22,22 @@ function Card({ id, idx, title, category, background, handler }: CardProps) {
             )}
             onClick={(e) => {
                 e.preventDefault();
-                handler(id, title, category, background);
+                handler(data);
             }}
         >
             <div className="w-full h-full relative block pointer-events-none">
                 <motion.div
-                    className="pointer-events-auto relative rounded-lg bg-gray-900 overflow-hidden w-full h-full mx-auto"
+                    className="pointer-events-auto relative rounded-lg shadow-2xl  overflow-hidden w-full h-full mx-auto"
                     style={{ backgroundColor: "#1c1c1e" }}
-                    layoutId={`card-container-${id}`}
+                    layoutId={`card-container-${data.Id}`}
                 >
                     <motion.div
                         className="absolute top-0 left-0 overflow-hidden w-full h-full"
-                        layoutId={`card-image-container-${id}`}
+                        layoutId={`card-image-container-${data.Id}`}
                     >
                         <div
                             className="object-cover h-full w-full"
-                            // style={{ backgroundColor: background }}
+                            style={{ backgroundColor: data.background }}
                         ></div>
                         {/* <img
                             className="object-cover h-full w-full"
@@ -54,12 +47,14 @@ function Card({ id, idx, title, category, background, handler }: CardProps) {
                     </motion.div>
                     <motion.div
                         className="absolute left-4 top-4"
-                        layoutId={`title-container-${id}`}
+                        layoutId={`title-container-${data.Id}`}
                     >
-                        <span className="text-white text-2xl uppercase">
-                            {category}
+                        <span className="text-white text-base uppercase">
+                            {data.Id}
                         </span>
-                        <h2 className="text-white text-xl my-2">{title}</h2>
+                        <p className="text-white text-2xl my-2 line-clamp-1">
+                            {data.Content}
+                        </p>
                     </motion.div>
                 </motion.div>
             </div>
@@ -68,8 +63,8 @@ function Card({ id, idx, title, category, background, handler }: CardProps) {
 }
 
 export interface ListProps {
-    items: any[];
-    handler(id: string, title: string, category: string, bg: string): void;
+    items: DataType[];
+    handler(data: DataType): void;
 }
 
 export function List(props: ListProps) {
@@ -77,10 +72,9 @@ export function List(props: ListProps) {
         <ul className="list-none m-0 p-0 flex flex-wrap content-start">
             {props.items.map((card, idx) => (
                 <Card
-                    key={"key_card_" + card.id}
-                    {...card}
+                    key={"key_card_" + card.Id}
+                    data={card}
                     idx={idx + 1}
-                    background={"#" + Math.random().toString(16).slice(2, 8)}
                     handler={props.handler}
                 />
             ))}
