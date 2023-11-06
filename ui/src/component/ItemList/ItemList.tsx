@@ -44,7 +44,7 @@ function Card({ id, idx, title, category, background, handler }: CardProps) {
                     >
                         <div
                             className="object-cover h-full w-full"
-                            style={{ backgroundColor: background }}
+                            // style={{ backgroundColor: background }}
                         ></div>
                         {/* <img
                             className="object-cover h-full w-full"

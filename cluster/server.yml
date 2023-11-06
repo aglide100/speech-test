@@ -5,6 +5,7 @@ services:
         #     context: .
         #     dockerfile: ./cmd/fixer/Dockerfile
         image: ghcr.io/aglide100/ai-speech--fixer:latest
+        command: "/opt/bin/fixer/main --debugMode=true"
         hostname: fixer
         networks:
             - traefik-network

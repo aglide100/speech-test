@@ -1,10 +1,11 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 
 import { List } from "@/component/ItemList/ItemList";
 import Item from "../../component/Item/Item";
 
 import { useState } from "react";
+import { getJobList } from "@/util/fetch";
 const items: any[] = [
     {
         id: "1",
@@ -45,11 +46,25 @@ export default function Home({
     params: { slug: string };
     searchParams: { [key: string]: string | string[] | undefined };
 }) {
+    const [data, setData] = useState();
+    const [isLoading, setIsLoading] = useState(true);
+
     const [current, setCurrent] = useState("");
     const [category, setCategory] = useState("");
     const [title, setTitle] = useState("");
     const [background, setBackground] = useState("");
 
+    useEffect(() => {
+        if (isLoading) {
+            getJobList((result: any) => {
+                // setCurrent(result);
+                setIsLoading(false);
+                console.log(data);
+            });
+        }
+    });
+
+    console.log("current :", current);
     return (
         <>
             {current != "" ? (

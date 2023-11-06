@@ -1,6 +1,7 @@
 package queue
 
 import (
+	"reflect"
 	"time"
 
 	"github.com/aglide100/speech-test/cluster/pkg/job"
@@ -59,7 +60,7 @@ func (pq *PriorityQueue) Swap(i, j int) {
 	pq.queue[j].Index = j
 }
 
-func (pq *PriorityQueue) Remove(item *Item) {
+func (pq *PriorityQueue) Remove(item *job.Job) (bool) {
 	old := []*Item{}
 	copy(old, pq.queue)
 
@@ -67,7 +68,7 @@ func (pq *PriorityQueue) Remove(item *Item) {
 	found := false
 
 	for idx, val := range old {
-		if val == item {
+		if reflect.DeepEqual(val.Value.Job, item) {
 			Index = idx
 			found = true
 			continue
@@ -79,13 +80,22 @@ func (pq *PriorityQueue) Remove(item *Item) {
 	}
 
 	if !found {
-		logger.Error("Can't find item")
-		return
+		logger.Debug("Can't find item")
+		return false
 	}
+	if len(old) == 1 {
 
-	old = append(old[:Index], old[Index+1])
-
-	pq.queue = old
+		pq.queue = make([]*Item, 0)
+		return true
+	} 
+	
+	if Index == len(old)-1 {
+		pq.queue = old[:Index]
+		return true
+	}
+		
+	pq.queue = append(old[:Index], old[Index+1])
+	return true
 }
  
 func (pq *PriorityQueue) Pop() (*Item, bool) {

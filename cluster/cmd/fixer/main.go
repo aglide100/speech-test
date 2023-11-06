@@ -19,11 +19,11 @@ import (
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 )
+
 var (
 	managerAddr = flag.String("addr", "0.0.0.0:50012", "grpc address")
-	timeOutTime = flag.Int("timeout", 5, "hour")
+	timeOutTime = flag.Int("timeout", 10, "hour")
 )
-
 
 func main() {
 	if err := realMain(); err != nil {

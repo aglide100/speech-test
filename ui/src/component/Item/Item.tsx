@@ -24,7 +24,6 @@ export default function Item({
     handler,
 }: ItemProps) {
     const y = useMotionValue(0);
-    console.log(y);
 
     const rootRef = useRef(null);
     const itemRef = useRef(null);
@@ -76,7 +75,7 @@ export default function Item({
                         </div>
                         <div
                             className="w-full h-80"
-                            style={{ backgroundColor: background }}
+                            // style={{ backgroundColor: background }}
                         ></div>
                         {/* <img
                             className="w-full h-80"

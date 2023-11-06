@@ -51,7 +51,7 @@ func (req *RequestQueue) RemoveRequest(target *request.Request) bool {
 	return false
 }
 
-func (req *RequestQueue) RemoveJobInRequest(j *job.Job) (bool, *request.Request) {
+func (req *RequestQueue) RemoveJobInRequest(j *job.Job) (bool, *request.Request, bool) {
 	logger.Debug("RemoveJobInRequest", zap.Any("job", j))
 	found := false
 	req_idx := -1
@@ -71,17 +71,17 @@ func (req *RequestQueue) RemoveJobInRequest(j *job.Job) (bool, *request.Request)
 	if found {
 		if len(req.reqs[req_idx].Jobs) == 1 {
 			req.reqs[req_idx].Jobs = make([]*job.Job, 0)
-			return true, req.reqs[req_idx]
+			return true, req.reqs[req_idx], true
 		}
 
 		if job_idx == len(req.reqs[req_idx].Jobs)-1 {
 			req.reqs[req_idx].Jobs = req.reqs[req_idx].Jobs[:job_idx]
-			return true, req.reqs[req_idx]
+			return true, req.reqs[req_idx], false
 		}
 
 		req.reqs[req_idx].Jobs = append(req.reqs[req_idx].Jobs[:job_idx], req.reqs[req_idx].Jobs[job_idx+1])
-		return true, req.reqs[req_idx]
+		return true, req.reqs[req_idx], false
 	}
 	
-	return false, nil
+	return false, nil, false
 }

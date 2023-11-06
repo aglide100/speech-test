@@ -130,16 +130,21 @@ func (db *Database) GetIncompleteJob() ([]request.Request, error) {
 	return reqs, nil
 }
 
-func (db *Database) GetCompleteJob(limit, offset int) ([]*job.Job, error) {
+func (db *Database) GetCompleteJob(limit, offset int) ([]*job.ReturningJob, error) {
 	const q = `
-	SELECT j.id      AS job_id,
-       j.speaker AS job_speaker
+	SELECT j.id  AS job_id,
+       j.speaker AS job_speaker,
+       GROUP_CONCAT(value) AS content,
+       j.playing_time
 	FROM job j
-	    LEFT JOIN job_text jt ON j.id = jt.job_id
-	    LEFT JOIN (SELECT text_id, COUNT(*) AS audio_count
-	        FROM audio
-	        GROUP BY text_id
-		) AS a ON jt.text_id = a.text_id
+	         LEFT JOIN job_text jt ON j.id = jt.job_id
+	         LEFT JOIN (SELECT text_id, COUNT(*) AS audio_count
+	                    FROM audio
+	                    GROUP BY text_id
+	         ) AS a ON jt.text_id = a.text_id
+	         LEFT JOIN (SELECT value, id
+	                    FROM text
+	                    ) AS t ON jt.text_id = t.id
 	GROUP BY j.id, j.speaker, j.max_index
 	HAVING SUM(a.audio_count) = j.max_index
 	LIMIT ? OFFSET ?
@@ -150,20 +155,20 @@ func (db *Database) GetCompleteJob(limit, offset int) ([]*job.Job, error) {
 		return nil, err
 	}
 
-	var jobs []*job.Job  
+	var jobs []*job.ReturningJob  
 
 	for rows.Next() {
-		var tmp job.Job
+		var tmp job.ReturningJob
 
-		if err := rows.Scan(&tmp.Id, &tmp.Speaker); err != nil {
+		if err := rows.Scan(&tmp.Id, &tmp.Speaker, &tmp.Content, &tmp.PlayingTime); err != nil {
 			return nil, err
 		}
 
-		newJob := &job.Job{
+		newJob := &job.ReturningJob{
+			Id: tmp.Id,
 			Content: tmp.Content,
 			Speaker: tmp.Speaker,
-			No: tmp.No,
-			Id: uuid.New().String(),
+			PlayingTime: tmp.PlayingTime,
 		}
 		
 		jobs = append(jobs, newJob)
