@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"strconv"
 
 	"github.com/aglide100/speech-test/cluster/pkg/logger"
 	"github.com/aglide100/speech-test/cluster/pkg/request"
@@ -25,47 +26,52 @@ func (db *Database) SaveAudio(textId int, audio []byte, sec float32, speaker str
 }
 
 
-func (db *Database) SaveJob(req *request.Request) error {
+func (db *Database) SaveJob(req *request.Request) (*request.Request, error) {
 	const q = `
-	INSERT INTO job(date, max_index, speaker)
-    	VALUES (now(), ?, ?)
+	INSERT INTO job(date, max_index, speaker, title)
+    	VALUES (now(), ?, ?, ?)
 	`
 	tx, err := db.conn.Begin()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	defer tx.Rollback()
 
-	res, err := db.conn.Exec(q, len(req.Jobs), req.Speaker)
+	res, err := db.conn.Exec(q, len(req.Jobs), req.Speaker, req.Title)
 	if err != nil {
 		logger.Error("Can't Insert Job", zap.Error(err))
-		return err
+		return nil, err
 	}
 
 	jobId, err := res.LastInsertId()
 	if err != nil {
 		logger.Error("last insertId", zap.Error(err))
-		return err
+		return nil, err
 	}
 
-	for idx, job := range req.Jobs {
-		err = db.SaveText(job.Content, job.Speaker, int(jobId), idx)
+	var newReq = req
+	
+
+	for idx, job := range newReq.Jobs {
+		textId, err := db.SaveText(job.Content, job.Speaker, int(jobId), idx)
 		if err != nil {
 			logger.Error("Can't save text")
-			return err
+			return nil, err
 		}
+
+		newReq.Jobs[idx].TextId = strconv.Itoa(int(textId))
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	
-	return nil 
+	return newReq, nil 
 }
 
-func (db *Database) SaveText(text, speaker string, jobId, order int) error {
+func (db *Database) SaveText(text, speaker string, jobId, order int) (int64, error) {
 	const q1 = `
 	INSERT INTO text(value, speaker)
 		VALUES (?, ?)
@@ -78,7 +84,7 @@ func (db *Database) SaveText(text, speaker string, jobId, order int) error {
 
 	tx, err := db.conn.Begin()
 	if err != nil {
-		return err
+		return -1, err
 	}
 
 	defer tx.Rollback()
@@ -89,38 +95,38 @@ func (db *Database) SaveText(text, speaker string, jobId, order int) error {
 			res, err2 := db.conn.Exec(q1, text, speaker) 
 			if err2 != nil {
 				logger.Error("Can't exec q1")
-				return err2
+				return -1, err2
 			}
 
 			textId, err2 := res.LastInsertId()
 			if err2 != nil {
 				logger.Error("Can't exec q2 in lastInsertId")
-				return err2
+				return -1, err2
 			}
 
 			_, err2 = db.conn.Exec(q2, jobId, textId, order)
 			if err2 != nil {
 				logger.Error("Can't exec q2")
-				return err2
+				return -1, err2
 			}
 
-			return nil
+			return textId, nil
 		}
 
 		logger.Error("Can't get textId", zap.Error(err))
-		return err
+		return -1, err
 	}
 
 	_, err = db.conn.Exec(q2, jobId, textId, order)
 	if err != nil {
 		logger.Error("Can't query q2")
-		return err 
+		return -1, err 
 	}
 	
 	err = tx.Commit()
 	if err != nil {
-		return err
+		return -1, err
 	}
 
-	return nil 
+	return int64(textId), nil 
 }

@@ -63,16 +63,17 @@ func (s *AudioSrv) MakingNewJob(ctx context.Context, in *pb_svc_audio.MakingNewJ
 		}, nil
 	}
 
-	err = s.db.SaveJob(&request.Request{
-		Text: in.Content,
+	newReqs, err := s.db.SaveJob(&request.Request{
+		FullText: in.Content,
 		Jobs: req.Jobs,
 		Speaker: in.Speaker,
+		Title: in.Title,
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	err = s.AddRequestInQueue(req)
+	err = s.AddRequestInQueue(newReqs)
 	if err != nil {
 		return nil, err
 	}
@@ -91,10 +92,10 @@ func (s *AudioSrv) CheckingJob(ctx context.Context, in *pb_svc_audio.CheckingJob
 
 	if ok {
 		allocated := &queue.Allocate{
-			Job: job.Job{
+			Job: &job.Job{
 				Content: p.Value.Job.Content,
 				Speaker:  p.Value.Job.Speaker,
-				Id:  p.Value.Job.Id,
+				TextId:  p.Value.Job.TextId,
 				No: p.Value.Job.No,
 			},
 			Who: runner.Runner{
@@ -107,6 +108,7 @@ func (s *AudioSrv) CheckingJob(ctx context.Context, in *pb_svc_audio.CheckingJob
 		s.running.Push(&queue.Item{
 			Value: *allocated,
 		})
+		logger.Info("push to running", zap.Any("running", s.running.Len()))
 	}
 
 	s.mu.Unlock()
@@ -122,7 +124,7 @@ func (s *AudioSrv) CheckingJob(ctx context.Context, in *pb_svc_audio.CheckingJob
 		Job: &pb_svc_audio.Job{
 			Content:  p.Value.Job.Content,
 			Speaker:  p.Value.Job.Speaker,
-			Id:  p.Value.Job.Id,
+			Id:  p.Value.Job.TextId,
 			No: int32(p.Value.Job.No),
 		},
 	}, nil
@@ -138,11 +140,11 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 	found := s.running.Remove(&job.Job{
 		Content: in.Job.Content,
 		Speaker: in.Job.Speaker,
-		Id: in.Job.Id,
+		TextId: in.Job.Id,
 		No: int(in.Job.No),
 	})
 
-	logger.Debug("running", zap.Any("running", s.running))
+	logger.Debug("running", zap.Any("running", s.running.Len()))
 	if !found {
 		logger.Info("Can't remove from running", zap.Any("running", s.running))
 	}
@@ -150,7 +152,7 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 	ok, result, last := s.requests.RemoveJobInRequest(&job.Job{
 		Content: in.Job.Content,
 		Speaker: in.Job.Speaker,
-		Id: in.Job.Id,
+		TextId: in.Job.Id,
 		No: int(in.Job.No),
 	})
 	
@@ -175,7 +177,7 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 				logger.Error("Can't remove request in queue!", zap.Any("req", s.requests))
 			}
 
-			err := s.db.UpdateTotalPlayingTime(result.Id)
+			err := s.db.UpdateTotalPlayingTime(result.JobId)
 			if err != nil {
 				return &pb_svc_audio.Error{
 					Msg: "Internal error",
@@ -197,7 +199,7 @@ func (s *AudioSrv) AddRequestInQueue(req *request.Request) error {
 
 	for _, job := range req.Jobs {
 		newAllocate := queue.Allocate{
-			Job: *job,
+			Job: job,
 		}
 
 		s.mu.Lock()
@@ -215,21 +217,21 @@ func (s *AudioSrv) AddRequestInQueue(req *request.Request) error {
 }
 
 func (s *AudioSrv) AddIncomplete() error {
-	res, err := s.db.GetIncompleteJob()
+	res, err := s.db.GetIncompleteJobIDs()
 	if err != nil {
 		return err
 	}
 
 	for _, val := range res {
 		logger.Info("id", zap.Any("val", val))
-		jobs, err := s.db.GetIncompleteAudio(val.Id)
+		jobs, err := s.db.GetIncompleteAudio(val.JobId, val.Speaker)
 		if err != nil {
 			logger.Info("Can't add job in req", zap.Error(err))
 			return err
 		}
 
 		req := &request.Request{
-			Text: val.Text,
+			JobId: val.JobId,
 			Speaker: val.Speaker,
 			Jobs: jobs,
 		}

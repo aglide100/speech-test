@@ -6,42 +6,42 @@ import (
 	"strconv"
 
 	"github.com/aglide100/speech-test/cluster/pkg/logger"
+	"go.uber.org/zap"
 )
 
-func (hdl *HlsController) ServeJobList(w http.ResponseWriter, r *http.Request) {
-	
-	limit := 2
-	offset := 0
 
-	if r.URL.Query().Has("offset") {
-		str := r.URL.Query().Get("offset")
+type Text struct {
+	Txt string
+}
+
+func (hdl *HlsController) ServeText(w http.ResponseWriter, r *http.Request) {
+
+	logger.Debug("r", zap.Any("r", r.RequestURI))
+
+	jobId := -1
+
+	if r.URL.Query().Has("jobId") {
+		str := r.URL.Query().Get("jobId")
 		q, err := strconv.Atoi(str)
 		if err != nil {
-			offset = 0
-		} else {
-			offset = q
-		}
+			http.Error(w, "invalid id", http.StatusBadRequest)
+        	return
+		} 
+		
+		jobId = q
 	}
 
-	if r.URL.Query().Has("limit") {
-		str := r.URL.Query().Get("limit")
-		q, err := strconv.Atoi(str)
-		if err != nil {
-			limit = 0
-		} else {
-			limit = q
-		}
-	}
-
-
-	jobs, err := hdl.db.GetCompleteJob(limit, offset)
+	res, err := hdl.db.GetTextFromJob(jobId)
 	if err != nil {
 		logger.Error(err.Error())
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}
-	 
-	b, err := json.Marshal(jobs)
+	
+	b, err := json.Marshal(Text{
+		Txt: res,
+	})
+	
 	if err != nil {
 		logger.Error(err.Error())
 		http.Error(w, "internal server error", http.StatusInternalServerError)

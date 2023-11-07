@@ -3,14 +3,14 @@ package request
 import (
 	"github.com/aglide100/speech-test/cluster/pkg/job"
 	"github.com/aglide100/speech-test/cluster/pkg/txt"
-	"github.com/google/uuid"
 )
 
 type Request struct {
-	Text string
+	FullText string
 	Speaker string
+	Title string
 	Jobs []*job.Job
-	Id int
+	JobId int
 }
 
 func MakeRequest(text string, speaker string) (*Request, error) {
@@ -28,7 +28,7 @@ func MakeRequest(text string, speaker string) (*Request, error) {
 		newJob := &job.Job{
 			Content: sent,
 			Speaker: speaker,
-			Id: uuid.New().String(),
+			// Id: uuid.New().String(),
 			No: idx,
 		}
 
@@ -36,7 +36,7 @@ func MakeRequest(text string, speaker string) (*Request, error) {
 	}
 
 	request.Jobs = jobs
-	request.Text = text
+	request.FullText = text
 	request.Speaker = speaker
 	
 	return request, nil

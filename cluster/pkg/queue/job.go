@@ -1,7 +1,6 @@
 package queue
 
 import (
-	"reflect"
 	"time"
 
 	"github.com/aglide100/speech-test/cluster/pkg/job"
@@ -22,7 +21,7 @@ type Item struct {
 type Allocate struct {
 	Who runner.Runner
 	When time.Time
-	Job job.Job
+	Job *job.Job
 }
 
 func NewPriorityQueue() *PriorityQueue {
@@ -61,21 +60,29 @@ func (pq *PriorityQueue) Swap(i, j int) {
 }
 
 func (pq *PriorityQueue) Remove(item *job.Job) (bool) {
-	old := []*Item{}
-	copy(old, pq.queue)
+	
+	tmp := make([]*Item, len(pq.queue))
+	copy(tmp, pq.queue)
 
 	Index := -1
 	found := false
 
-	for idx, val := range old {
-		if reflect.DeepEqual(val.Value.Job, item) {
-			Index = idx
+	// logger.Info("tmp in remove", zap.Any("tmp", tmp))
+	for idx, val := range tmp {
+		// logger.Info("val in remove", zap.Any("val", val))
+		if val.Value.Job.TextId == item.TextId {
+			Index = idx 
 			found = true
 			continue
 		}
+		// if reflect.DeepEqual(val.Value.Job, item) {
+		// 	Index = idx
+		// 	found = true
+		// 	continue
+		// }
 
 		if found {
-			old[idx].Index--
+			tmp[idx].Index--
 		}
 	}
 
@@ -83,18 +90,18 @@ func (pq *PriorityQueue) Remove(item *job.Job) (bool) {
 		logger.Debug("Can't find item")
 		return false
 	}
-	if len(old) == 1 {
 
+	if len(tmp) == 1 {
 		pq.queue = make([]*Item, 0)
 		return true
 	} 
 	
-	if Index == len(old)-1 {
-		pq.queue = old[:Index]
+	if Index == len(tmp)-1 {
+		pq.queue = tmp[:Index]
 		return true
 	}
 		
-	pq.queue = append(old[:Index], old[Index+1])
+	pq.queue = append(tmp[:Index], tmp[Index+1])
 	return true
 }
  
@@ -120,16 +127,16 @@ func (pq *PriorityQueue) Pop() (*Item, bool) {
 }
 
 
-func (pq *PriorityQueue) SearchAllocate(job job.Job) (*Item, bool) {
+// func (pq *PriorityQueue) SearchAllocate(job job.Job) (*Item, bool) {
 
-	for _, val := range pq.queue {
-		if val.Value.Job == job {
-			return val, true
-		}
-	}
+// 	for _, val := range pq.queue {
+// 		if val.Value.Job == job {
+// 			return val, true
+// 		}
+// 	}
 
-	return nil, false
-}
+// 	return nil, false
+// }
 
 func (pq *PriorityQueue) SetAllocate(allocate *Allocate) {
 	logger.Info("Set allocate", zap.Any("Allocate", allocate.Who.Who))
@@ -149,14 +156,14 @@ func (pq *PriorityQueue) SetAllocate(allocate *Allocate) {
 	}
 }
 
-func (pq *PriorityQueue) GetNotAllocate() (job.Job, bool) {
+func (pq *PriorityQueue) GetNotAllocate() (*job.Job, bool) {
 	for _, item := range pq.queue {
 		if item.Value.Who == (runner.Runner{}) && len(item.Value.Who.Who) == 0 {
 			return item.Value.Job, true
 		}
 	}
 
-	return job.Job{}, false
+	return nil, false
 }
 
 func (pq *PriorityQueue) CheckTimeOut(t int) []*Item {

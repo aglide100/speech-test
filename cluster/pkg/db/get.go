@@ -4,7 +4,6 @@ import (
 	"github.com/aglide100/speech-test/cluster/pkg/job"
 	"github.com/aglide100/speech-test/cluster/pkg/logger"
 	"github.com/aglide100/speech-test/cluster/pkg/request"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -42,27 +41,27 @@ func (db *Database) GetTextId(text, speaker string) (int, error) {
 }
 
 
-func (db *Database) GetJobText(jobId int) (job.Job, error) {
-	const q = `
-	SELECT j.id, GROUP_CONCAT(t.value ORDER BY jt.no) AS text
-	FROM job AS j
-	    LEFT JOIN (
-	        SELECT job_id, text_id, no
-	        FROM job_text
-	        WHERE no = 0 OR no =1
-	    ) AS jt ON jt.job_id = j.id
-	    LEFT JOIN text AS t ON t.id = jt.text_id
-	WHERE j.id = ?
-	`
+// func (db *Database) GetTextSummaryFromJob(jobId int) (job.Job, error) {
+// 	const q = `
+// 	SELECT j.id, GROUP_CONCAT(t.value ORDER BY jt.no) AS text
+// 	FROM job AS j
+// 	    LEFT JOIN (
+// 	        SELECT job_id, text_id, no
+// 	        FROM job_text
+// 	        WHERE no = 0 OR no =1
+// 	    ) AS jt ON jt.job_id = j.id
+// 	    LEFT JOIN text AS t ON t.id = jt.text_id
+// 	WHERE j.id = ?
+// 	`
 
-	var j job.Job
-	err := db.conn.QueryRow(q, jobId).Scan(&j.Id, &j.Content)
-	if err != nil {
-		return j, err
-	}
+// 	var j job.Job
+// 	err := db.conn.QueryRow(q, jobId).Scan(&j.Id, &j.Content)
+// 	if err != nil {
+// 		return j, err
+// 	}
 	
-	return j, nil
-}
+// 	return j, nil
+// }
 
 func (db *Database) GetAudioIds(jobId int) ([]job.Audio, error) {
 	const q = `
@@ -94,18 +93,46 @@ func (db *Database) GetAudioIds(jobId int) ([]job.Audio, error) {
 	return data, nil
 }
 
-
-func (db *Database) GetIncompleteJob() ([]request.Request, error) {
+func (db *Database) GetIncompleteJobText(jobId int, speaker string) ([]job.Job, error) {
 	const q = `
-	SELECT j.id AS job_id, j.speaker AS job_speaker, GROUP_CONCAT(t.value ORDER BY jt.no SEPARATOR ' ') AS text
-	FROM job j
-	    LEFT JOIN job_text AS jt ON j.id = jt.job_id
-	    LEFT JOIN text AS t ON jt.text_id = t.id
-	    LEFT JOIN (
-	    	SELECT text_id, COUNT(*) AS audio_count
-	    	FROM audio
-	    	GROUP BY text_id
-	) AS a ON t.id = a.text_id
+	SELECT jt.text_id AS text_id, t.value AS text, no
+	FROM job_text AS jt
+	    LEFT JOIN text AS t on jt.text_id = t.id
+	    LEFT JOIN audio AS a ON a.text_id = jt.text_id
+	WHERE job_id = ? AND a.data IS NULL
+	`
+
+	rows, err := db.conn.Query(q, jobId)
+	if err != nil {
+		return nil, err
+	}
+
+	var jts []job.Job
+	for rows.Next() {
+		var jt job.Job
+
+		if err := rows.Scan(&jt.TextId, &jt.Content, &jt.No); err != nil {
+			return nil, err
+		}
+
+		jt.Speaker = speaker
+
+		jts = append(jts, jt)
+	}
+
+	return jts, nil
+}
+
+func (db *Database) GetIncompleteJobIDs() ([]request.Request, error) {
+	const q = `
+	SELECT j.id AS job_id, j.speaker AS job_speaker
+	FROM job AS j
+	         LEFT JOIN job_text AS jt ON j.id = jt.job_id
+	         LEFT JOIN (
+	    SELECT text_id, COUNT(*) AS audio_count
+	    FROM audio
+	    GROUP BY text_id
+	) AS a ON jt.text_id = a.text_id
 	GROUP BY j.id, j.speaker, j.max_index
 	HAVING SUM(a.audio_count) != j.max_index OR SUM(a.audio_count) IS NULL
 	`
@@ -118,9 +145,9 @@ func (db *Database) GetIncompleteJob() ([]request.Request, error) {
 	var reqs []request.Request  
 
 	for rows.Next() {
-		var req request.Request
+		var req request.Request  
 
-		if err := rows.Scan(&req.Id, &req.Speaker, &req.Text); err != nil {
+		if err := rows.Scan(&req.JobId, &req.Speaker); err != nil {
 			return nil, err
 		}
 
@@ -130,21 +157,40 @@ func (db *Database) GetIncompleteJob() ([]request.Request, error) {
 	return reqs, nil
 }
 
+func (db *Database) GetTextFromJob(jobId int) (string, error) {
+	const q = `
+	SELECT GROUP_CONCAT(value)
+	FROM job AS j
+	    LEFT JOIN job_text AS jt ON j.id = jt.job_id
+	    LEFT JOIN (
+	        SELECT id, value
+	        FROM text
+	    ) AS t ON t.id = jt.text_id
+	WHERE job_id = ?
+	`
+
+	var text string
+
+	err := db.conn.QueryRow(q, jobId).Scan(&text)
+	if err != nil {
+		return "", err
+	}
+
+	return text, nil
+}
+
 func (db *Database) GetCompleteJob(limit, offset int) ([]*job.ReturningJob, error) {
 	const q = `
 	SELECT j.id  AS job_id,
        j.speaker AS job_speaker,
-       GROUP_CONCAT(value) AS content,
+       j.title AS job_title,
        j.playing_time
-	FROM job j
-	         LEFT JOIN job_text jt ON j.id = jt.job_id
+	FROM job AS j
+	         LEFT JOIN job_text AS jt ON j.id = jt.job_id
 	         LEFT JOIN (SELECT text_id, COUNT(*) AS audio_count
 	                    FROM audio
 	                    GROUP BY text_id
-	         ) AS a ON jt.text_id = a.text_id
-	         LEFT JOIN (SELECT value, id
-	                    FROM text
-	                    ) AS t ON jt.text_id = t.id
+	) AS a ON jt.text_id = a.text_id
 	GROUP BY j.id, j.speaker, j.max_index
 	HAVING SUM(a.audio_count) = j.max_index
 	LIMIT ? OFFSET ?
@@ -155,12 +201,12 @@ func (db *Database) GetCompleteJob(limit, offset int) ([]*job.ReturningJob, erro
 		return nil, err
 	}
 
-	var jobs []*job.ReturningJob  
+	var jobs []*job.ReturningJob   
 
 	for rows.Next() {
 		var tmp job.ReturningJob
 
-		if err := rows.Scan(&tmp.Id, &tmp.Speaker, &tmp.Content, &tmp.PlayingTime); err != nil {
+		if err := rows.Scan(&tmp.Id, &tmp.Speaker, &tmp.Title, &tmp.PlayingTime); err != nil {
 			return nil, err
 		}
 
@@ -168,6 +214,7 @@ func (db *Database) GetCompleteJob(limit, offset int) ([]*job.ReturningJob, erro
 			Id: tmp.Id,
 			Content: tmp.Content,
 			Speaker: tmp.Speaker,
+			Title: tmp.Title,
 			PlayingTime: tmp.PlayingTime,
 		}
 		
@@ -177,12 +224,12 @@ func (db *Database) GetCompleteJob(limit, offset int) ([]*job.ReturningJob, erro
 	return jobs, nil
 }
 
-func (db *Database) GetIncompleteAudio(jobId int) ([]*job.Job, error) {
+func (db *Database) GetIncompleteAudio(jobId int, speaker string) ([]*job.Job, error) {
 	const q = `
-	SELECT t.value, t.speaker, jt.no
+	SELECT t.value, jt.no, jt.text_id
 	FROM text AS t
-	    LEFT JOIN audio AS a ON t.id = a.text_id
-	    LEFT JOIN job_text AS jt ON t.id = jt.text_id
+	         LEFT JOIN audio AS a ON t.id = a.text_id
+	         LEFT JOIN job_text AS jt ON t.id = jt.text_id
 	WHERE a.text_id IS NULL AND jt.job_id = ?
 	`
 
@@ -196,18 +243,11 @@ func (db *Database) GetIncompleteAudio(jobId int) ([]*job.Job, error) {
 	for rows.Next() {
 		var tmp job.Job
 
-		if err := rows.Scan(&tmp.Content, &tmp.Speaker, &tmp.No); err != nil {
+		if err := rows.Scan(&tmp.Content, &tmp.No, &tmp.TextId); err != nil {
 			return nil, err
 		}
-
-		newJob := &job.Job{
-			Content: tmp.Content,
-			Speaker: tmp.Speaker,
-			No: tmp.No,
-			Id: uuid.New().String(),
-		}
-		
-		jobs = append(jobs, newJob)
+		tmp.Speaker = speaker
+		jobs = append(jobs, &tmp)
 	}
 
 	return jobs, nil

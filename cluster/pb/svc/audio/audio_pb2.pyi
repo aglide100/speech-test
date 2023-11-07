@@ -63,16 +63,16 @@ class SendingResultReq(_message.Message):
     def __init__(self, audio: _Optional[_Union[Audio, _Mapping]] = ..., auth: _Optional[_Union[Auth, _Mapping]] = ..., job: _Optional[_Union[Job, _Mapping]] = ...) -> None: ...
 
 class MakingNewJobReq(_message.Message):
-    __slots__ = ["auth", "content", "speaker", "path"]
+    __slots__ = ["auth", "content", "speaker", "title"]
     AUTH_FIELD_NUMBER: _ClassVar[int]
     CONTENT_FIELD_NUMBER: _ClassVar[int]
     SPEAKER_FIELD_NUMBER: _ClassVar[int]
-    PATH_FIELD_NUMBER: _ClassVar[int]
+    TITLE_FIELD_NUMBER: _ClassVar[int]
     auth: Auth
     content: str
     speaker: str
-    path: str
-    def __init__(self, auth: _Optional[_Union[Auth, _Mapping]] = ..., content: _Optional[str] = ..., speaker: _Optional[str] = ..., path: _Optional[str] = ...) -> None: ...
+    title: str
+    def __init__(self, auth: _Optional[_Union[Auth, _Mapping]] = ..., content: _Optional[str] = ..., speaker: _Optional[str] = ..., title: _Optional[str] = ...) -> None: ...
 
 class GetAudioReq(_message.Message):
     __slots__ = ["auth", "jobId"]

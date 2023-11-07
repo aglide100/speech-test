@@ -5,14 +5,13 @@ import (
 	"math"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/aglide100/speech-test/cluster/pkg/logger"
 	"go.uber.org/zap"
 )
 
 
-func (hdl *HlsController) ServePlaylist(w http.ResponseWriter, r *http.Request) {
+func (hdl *HlsController) ServePlaylistFile(w http.ResponseWriter, r *http.Request) {
 	const playlist =`#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-MEDIA-SEQUENCE:0
@@ -28,22 +27,30 @@ func (hdl *HlsController) ServePlaylist(w http.ResponseWriter, r *http.Request) 
 
 	logger.Debug("uri", zap.Any("r", r.RequestURI))
 
-	parts := strings.Split(r.URL.Path, "/")
-    if len(parts) < 3 {
-        http.Error(w, "invalid url", http.StatusBadRequest)
-        return
-    }
+	// parts := strings.Split(r.URL.Path, "/")
+    // if len(parts) < 3 {
+    //     http.Error(w, "invalid url", http.StatusBadRequest)
+    //     return
+    // }
 
-    jobId := strings.Replace(parts[2], ".m3u8", "", -1)
+    // jobId := strings.Replace(parts[2], ".m3u8", "", -1)
 
-	idx, err := strconv.Atoi(jobId)
-	if err != nil {
-		http.Error(w, "invalid id", http.StatusBadRequest)
-        return
+	jobId := -1
+
+	if r.URL.Query().Has("jobId") {
+		str := r.URL.Query().Get("jobId")
+		q, err := strconv.Atoi(str)
+		if err != nil {
+			http.Error(w, "invalid id", http.StatusBadRequest)
+        	return
+		} 
+		
+		jobId = q
 	}
 
-	res, err := hdl.db.GetAudioIds(idx)
+	res, err := hdl.db.GetAudioIds(jobId)
 	if err != nil {
+		logger.Error(err.Error())
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 		return
 	}

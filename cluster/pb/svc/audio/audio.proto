@@ -42,7 +42,7 @@ message MakingNewJobReq {
     Auth auth = 1;
     string content = 2;
     string speaker = 3;
-    string path = 4;
+    string title = 4;
 }
 
 message GetAudioReq {

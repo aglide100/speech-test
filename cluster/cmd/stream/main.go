@@ -33,9 +33,11 @@ func realMain() error {
 	c := cache.New(5*time.Minute, 10*time.Minute)
 
 	ctl := controller.NewHlsController(myDB, c)
+	
+	http.HandleFunc("/text", addHeaders(http.HandlerFunc(ctl.ServeText)))
 	http.HandleFunc("/list", addHeaders(http.HandlerFunc(ctl.ServeJobList)))
-	http.HandleFunc("/playlist/", addHeaders(http.HandlerFunc(ctl.ServePlaylist)))
-	http.HandleFunc("/", addHeaders(http.HandlerFunc(ctl.FileHandler)))
+	http.HandleFunc("/playlist", addHeaders(http.HandlerFunc(ctl.ServePlaylistFile)))
+	http.HandleFunc("/", addHeaders(http.HandlerFunc(ctl.ServeTsFile)))
 	
 	logger.Info("Starting server on ", zap.Any("port", port))
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", port), nil))

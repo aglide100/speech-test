@@ -97,7 +97,7 @@ def main():
 
             inputs = processor(job.content, voice_preset=job.speaker)
 
-            audio_array = model.generate(**inputs)
+            audio_array = model.generate(**inputs.to(device))
             audio_array = audio_array.cpu().numpy().squeeze()
             # sec = (len(audio_array) /
             #        model.generation_config.sample_rate) * 1000

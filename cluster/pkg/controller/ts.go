@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (hdl *HlsController) FileHandler(w http.ResponseWriter, r *http.Request) {
+func (hdl *HlsController) ServeTsFile(w http.ResponseWriter, r *http.Request) {
 	fileExtension := filepath.Ext(r.RequestURI)
 	
 	logger.Debug("r", zap.Any("r", r.RequestURI))
