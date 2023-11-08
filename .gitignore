@@ -3,8 +3,10 @@
 .DS_Store
 .venv
 *.wav
+
+./cluster/output
+
 *.aac
-*.ts
 *.m3u8
 __pycache__
 .env
