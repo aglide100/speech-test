@@ -159,7 +159,7 @@ func (db *Database) GetIncompleteJobIDs() ([]request.Request, error) {
 
 func (db *Database) GetTextFromJob(jobId int) (string, error) {
 	const q = `
-	SELECT GROUP_CONCAT(value)
+	SELECT GROUP_CONCAT(value SEPARATOR ' ')
 	FROM job AS j
 	    LEFT JOIN job_text AS jt ON j.id = jt.job_id
 	    LEFT JOIN (
