@@ -4,7 +4,7 @@
 const addr = process.env.ADDR;
 // process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 const nextConfig = {
-    reactStrictMode: true,
+    reactStrictMode: false,
     async rewrites() {
         return [
             {

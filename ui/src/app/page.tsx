@@ -1,6 +1,7 @@
 "use client";
-import Image from "next/image";
-import React, { useRef, useState } from "react";
+import React from "react";
+
+import { List } from "@/component/ItemList/ItemList";
 
 export default function Home({
     params,
@@ -9,5 +10,9 @@ export default function Home({
     params: { slug: string };
     searchParams: { [key: string]: string | string[] | undefined };
 }) {
-    return <></>;
+    return (
+        <>
+            <List></List>
+        </>
+    );
 }
