@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-import { List } from "@/component/ItemList/ItemList";
+import { List } from "../component/ItemList/ItemList";
 
 export default function Home({
     params,

@@ -1,5 +1,5 @@
 "use client";
-import { Header } from "@/component/Header/Header";
+import { Header } from "../component/Header/Header";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";

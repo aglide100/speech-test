@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 
 import classNames from "classnames";
 
-import { getJobList } from "@/util/fetch";
+import { getJobList } from "../../util/fetch";
 import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
-import { Overlay } from "@/component/Overlay/Overlay";
+import { Overlay } from "../../component/Overlay/Overlay";
 import { useQueryState } from "next-usequerystate";
-import { Loading } from "@/component/Loading/Loading";
+import { Loading } from "../../component/Loading/Loading";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Item, { DataType } from "../../component/Item/Item";
 

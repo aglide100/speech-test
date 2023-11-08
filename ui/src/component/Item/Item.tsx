@@ -1,11 +1,11 @@
 "use client";
 import { AnimatePresence, motion, useMotionValue } from "framer-motion";
 import { Content as ContentBlock } from "../Content/Content";
-import { closeSpring, openSpring } from "@/hook/animation";
+import { closeSpring, openSpring } from "../../hook/animation";
 import { useRef, useEffect, useState } from "react";
-import { useScrollConstraints } from "@/hook/useScrollConstraints";
-import { useWheelScroll } from "@/hook/useWheelScroll";
-import { getJobText } from "@/util/fetch";
+import { useScrollConstraints } from "../../hook/useScrollConstraints";
+import { useWheelScroll } from "../../hook/useWheelScroll";
+import { getJobText } from "../../util/fetch";
 
 export interface DataType {
     Id: string;
