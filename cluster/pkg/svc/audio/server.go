@@ -149,6 +149,26 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 		logger.Info("Can't remove from running", zap.Any("running", s.running))
 	}
 
+	textId, err := s.db.GetTextId(in.Job.Content, in.Job.Speaker)
+	if err != nil {
+		logger.Error("Can't get textId", zap.Any("job", in.Job))
+		return &pb_svc_audio.Error{
+			Msg: "Internal error",
+		}, err
+	}
+	
+	err = s.db.SaveAudio(textId, in.Audio.Data, in.Audio.Sec, in.Job.Speaker)
+	if err != nil {
+		logger.Error("Can't save audio", zap.Any("job", in.Job))
+		
+		return &pb_svc_audio.Error{
+			Msg: "Internal error",
+		}, err
+	}
+
+	logger.Info("Saved audio", zap.Any("jobId", in.Job.Id))
+
+
 	ok, result, last := s.requests.RemoveJobInRequest(&job.Job{
 		Content: in.Job.Content,
 		Speaker: in.Job.Speaker,
@@ -156,23 +176,8 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 		No: int(in.Job.No),
 	})
 	
+	
 	if ok {
-		textId, err := s.db.GetTextId(in.Job.Content, in.Job.Speaker)
-		if err != nil {
-			return &pb_svc_audio.Error{
-				Msg: "Internal error",
-			}, err
-		}
-		
-		err = s.db.SaveAudio(textId, in.Audio.Data, in.Audio.Sec, in.Job.Speaker)
-		if err != nil {
-			return &pb_svc_audio.Error{
-				Msg: "Internal error",
-			}, err
-		}
-
-		logger.Info("Saved audio", zap.Any("jobId", in.Job.Id))
-
 		if last {
 			ok := s.requests.RemoveRequest(result)
 			if !ok {

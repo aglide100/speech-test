@@ -1,8 +1,6 @@
 package queue
 
 import (
-	"reflect"
-
 	"github.com/aglide100/speech-test/cluster/pkg/job"
 	"github.com/aglide100/speech-test/cluster/pkg/logger"
 	"github.com/aglide100/speech-test/cluster/pkg/request"
@@ -26,11 +24,18 @@ func (req *RequestQueue) RemoveRequest(target *request.Request) bool {
 	index := -1
 	
 	for idx, val := range req.reqs {
-		if reflect.DeepEqual(val, target) {
+		if val.JobId == target.JobId {
+			logger.Debug("RemoveRequest", zap.Any("job", target))
+				
 			found = true
 			index = idx
 			break
 		}
+		// if reflect.DeepEqual(val, target) {
+		// 	found = true
+		// 	index = idx
+		// 	break
+		// }
 	}
 
 	if found {
@@ -52,19 +57,26 @@ func (req *RequestQueue) RemoveRequest(target *request.Request) bool {
 }
 
 func (req *RequestQueue) RemoveJobInRequest(j *job.Job) (bool, *request.Request, bool) {
-	logger.Debug("RemoveJobInRequest", zap.Any("job", j))
+	
 	found := false
 	req_idx := -1
 	job_idx := -1
 
 	for idx1, req := range req.reqs {
 		for idx2, val := range req.Jobs {
-			if reflect.DeepEqual(val, j) {
+			if val.TextId == j.TextId {
+				logger.Debug("RemoveJobInRequest", zap.Any("job", j))
 				found = true
 				req_idx = idx1
 				job_idx = idx2
 				break;
 			}
+			// if reflect.DeepEqual(val, j) {
+			// 	found = true
+			// 	req_idx = idx1
+			// 	job_idx = idx2
+			// 	break;
+			// }
 		}	
 	}
 
