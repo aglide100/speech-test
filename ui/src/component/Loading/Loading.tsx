@@ -10,7 +10,7 @@ export const Loading = () => {
             // initial={{ x: "100%" }}
             // exit={{ x: "-100%" }}
             transition={transition}
-            className="flex flex-col w-full fixed z-30 inset-0 bg-gray-700 items-center justify-center"
+            className="flex flex-col w-full fixed z-30 inset-0 items-center justify-center"
         >
             <TailSpin
                 height="80"

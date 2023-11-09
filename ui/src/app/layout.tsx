@@ -1,9 +1,9 @@
 "use client";
+import { AnimatePresence, LayoutGroup } from "framer-motion";
 import { Header } from "../component/Header/Header";
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { AnimatePresence, LayoutGroup } from "framer-motion";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,7 +21,7 @@ export default function RootLayout({
         <html>
             <body>
                 <Header />
-                <div className="md:p-20">{children}</div>
+                {children}
             </body>
         </html>
     );

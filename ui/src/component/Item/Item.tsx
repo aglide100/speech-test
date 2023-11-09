@@ -1,11 +1,13 @@
 "use client";
-import { AnimatePresence, motion, useMotionValue } from "framer-motion";
+import { motion, useMotionValue } from "framer-motion";
 import { Content as ContentBlock } from "../Content/Content";
-import { closeSpring, openSpring } from "../../hook/animation";
+import { closeSpring, openSpring } from "../../util/animation";
 import { useRef, useEffect, useState } from "react";
 import { useScrollConstraints } from "../../hook/useScrollConstraints";
-import { useWheelScroll } from "../../hook/useWheelScroll";
+import { useScrollEvent } from "../../hook/useScrollEvent";
 import { getJobText } from "../../util/fetch";
+import { Cover } from "../Cover/Cover";
+import { Title } from "../Title/Title";
 
 export interface DataType {
     Id: string;
@@ -24,8 +26,6 @@ interface ItemProps extends FrameProps {
     m3u8Url: string;
     text: string;
 }
-
-const dismissDistance = 150;
 
 export default function Frame({ data, handler }: FrameProps) {
     const [isLoading, setIsLoading] = useState(true);
@@ -61,6 +61,25 @@ export default function Frame({ data, handler }: FrameProps) {
 
 function Item({ data, handler, m3u8Url, text }: ItemProps) {
     const y = useMotionValue(0);
+    const [dismissDistance, setDismissDistance] = useState(150);
+
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 768) {
+                setDismissDistance(100);
+            } else {
+                setDismissDistance(150);
+            }
+        };
+
+        handleResize();
+
+        window.addEventListener("resize", handleResize);
+
+        return () => {
+            window.removeEventListener("resize", handleResize);
+        };
+    }, []);
 
     const rootRef = useRef(null);
     const itemRef = useRef(null);
@@ -71,69 +90,44 @@ function Item({ data, handler, m3u8Url, text }: ItemProps) {
         y.get() > dismissDistance && handler(data.Id);
     }
 
-    useWheelScroll(rootRef, y, constraints, checkSwipeToDismiss, true);
+    useScrollEvent(rootRef, y, constraints, checkSwipeToDismiss, true);
     return (
-        <motion.div
+        <div
             ref={rootRef}
             className="fixed top-0 left-0 right-0 w-screen md:w-auto h-auto z-20 overflow-hidden pt-10 md:p-10 pb-40"
-            // initial={{ opacity: 0 }}
-            // exit={{ opacity: 0 }}
-            // animate={{ opacity: 1 }}
         >
             <motion.div
                 ref={itemRef}
+                key={`card-container-${data.Id}`}
                 layoutId={`card-container-${data.Id}`}
                 initial={openSpring}
                 exit={closeSpring}
+                transition={{ duration: 0.5 }}
                 drag={"y"}
                 dragConstraints={constraints}
                 className="z-50 relative rounded-lg overflow-hidden w-screen md:w-3/4 h-full mx-auto border-solid border-1 border-black shadow-xl"
                 style={{ backgroundColor: "#1c1c1e", y: y }}
             >
-                <motion.div
-                    className="md:relative top-0 left-0 overflow-hidden w-screen md:w-full"
-                    layoutId={`card-image-container-${data.Id}`}
+                <div
+                    className="text-white text-2xl absolute top-2 left-5 z-50"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        handler(data.Id);
+                    }}
                 >
-                    <div
-                        className="text-white text-2xl absolute top-2 left-5 z-20"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            handler(data.Id);
-                        }}
-                    >
-                        {"<"}
-                    </div>
-                    <div
-                        className="w-full h-80"
-                        style={{ backgroundColor: data.background }}
-                    ></div>
-                    {/* <img
-                            className="w-full h-80"
-                            src={`/images/${id}.jpg`}
-                            alt=""
-                        /> */}
+                    {"<"}
+                </div>
+                <Cover isOped={true} background={data.background} />
 
-                    <motion.div
-                        className="absolute top-4 left-11"
-                        layoutId={`title-container-${data.Id}`}
-                    >
-                        <span className="text-white text-base uppercase">
-                            {data.Id}
-                        </span>
-                        <p className="text-white text-2xl my-2 line-clamp-1">
-                            {data.Title}
-                        </p>
-                    </motion.div>
+                <motion.div
+                    className="absolute top-4 left-11 font-bold"
+                    layoutId={`title-container-${data.Id}`}
+                >
+                    <Title id={data.Id} title={data.Title} />
                 </motion.div>
 
-                <motion.div className="relative z-30 w-auto h-auto p-5  mt-10">
-                    <ContentBlock
-                        id={data.Id}
-                        playListUrl={m3u8Url}
-                        text={text}
-                    />
-                </motion.div>
+                <ContentBlock id={data.Id} playListUrl={m3u8Url} text={text} />
             </motion.div>
-        </motion.div>
+        </div>
     );
 }

@@ -5,7 +5,7 @@ export const Header = () => {
                 <div className="text-xl font-semibold">Logo</div>
                 <div></div>
             </div>
-            <div className="w-full">
+            <div className="w-full mt-3">
                 <hr></hr>
             </div>
         </div>

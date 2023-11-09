@@ -9,6 +9,8 @@ import { useQueryState } from "next-usequerystate";
 import { Loading } from "../../component/Loading/Loading";
 import InfiniteScroll from "react-infinite-scroll-component";
 import Item, { DataType } from "../../component/Item/Item";
+import { Cover } from "../Cover/Cover";
+import { Title } from "../Title/Title";
 
 export interface CardProps {
     idx: number;
@@ -38,31 +40,13 @@ function Card({ data, idx, handler }: CardProps) {
                     style={{ backgroundColor: "#1c1c1e" }}
                     layoutId={`card-container-${data.Id}`}
                 >
-                    <motion.div
-                        className="absolute top-0 left-0 overflow-hidden w-full h-full"
-                        layoutId={`card-image-container-${data.Id}`}
-                    >
-                        <div
-                            className="object-cover h-full w-full"
-                            style={{ backgroundColor: data.background }}
-                        ></div>
-                        {/* <img
-                            className="object-cover h-full w-full"
-                            src={`/images/${id}.jpg`}
-                            alt=""
-                        /> */}
-                    </motion.div>
-                    <motion.div
-                        className="absolute left-4 top-4"
-                        layoutId={`title-container-${data.Id}`}
-                    >
-                        <span className="text-white text-base uppercase">
-                            {data.Id}
-                        </span>
-                        <p className="text-white text-2xl my-2 line-clamp-1">
-                            {data.Title}
-                        </p>
-                    </motion.div>
+                    <Cover isOped={false} background={data.background} />
+                </motion.div>
+                <motion.div
+                    className="absolute left-4 top-4 font-bold"
+                    layoutId={`title-container-${data.Id}`}
+                >
+                    <Title id={data.Id} title={data.Title} />
                 </motion.div>
             </div>
         </motion.li>
@@ -95,7 +79,10 @@ export function List() {
             getJobList(
                 (result: any) => {
                     let list: DataType[] = [];
-                    if (result.data.length != 0) {
+
+                    if (result.data == undefined) {
+                        callback();
+                    } else if (result.data.length != 0) {
                         if (result.data.length < limit) {
                             setIsLast(true);
                         }
@@ -145,7 +132,6 @@ export function List() {
 
     const openHandler = (data: DataType) => {
         setCurrent(data);
-        setJob(data.Id);
     };
     const closeHandler = () => {
         setCurrent(undefined);
@@ -155,10 +141,23 @@ export function List() {
     };
     return (
         <LayoutGroup>
-            <AnimatePresence mode="wait">
+            <AnimatePresence
+                mode="wait"
+                // onExitComplete={() => {
+                //     if (current != undefined) {
+                //         setJob(current.Id);
+                //     } else {
+                //         setJob(null);
+                //     }
+                // }}
+            >
                 {!isLoading ? (
-                    <>
-                        <>
+                    <AnimatePresence mode="wait">
+                        <motion.div
+                            key="content_component"
+                            animate={{ opacity: 1 }}
+                            initial={{ opacity: 0 }}
+                        >
                             {current && (
                                 <>
                                     <Overlay />
@@ -174,7 +173,7 @@ export function List() {
                                 dataLength={data.length}
                                 next={() => fetchMore()}
                                 hasMore={!isLast}
-                                loader={<>...</>}
+                                loader={<></>}
                                 style={{
                                     zIndex: 10,
                                     height: "100%",
@@ -184,7 +183,7 @@ export function List() {
                                     top: 0,
                                 }}
                             >
-                                <motion.ul className="relative top-32 list-none md:p-20 p-0 flex flex-wrap content-start md:-mt-10 mt-10">
+                                <motion.ul className="relative top-20 list-none md:p-20 p-0 flex flex-wrap content-start md:-mt-10 mt-10">
                                     {data.map((card, idx) => (
                                         <Card
                                             key={"key__card_" + card.Id}
@@ -195,15 +194,15 @@ export function List() {
                                     ))}
                                 </motion.ul>
                             </InfiniteScroll>
-                        </>
-                    </>
+                        </motion.div>
+                    </AnimatePresence>
                 ) : (
                     <motion.div
-                        layoutId="loading_component"
-                        // animate={{ x: 0 }}
-                        // initial={{ x: "100%" }}
-                        // exit={{ x: "-100%" }}
-                        // transition={{ duration: 6 }}
+                        key="loading_component"
+                        animate={{ opacity: 1 }}
+                        initial={{ opacity: 0 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ type: "spring", duration: 0.5 }}
                     >
                         <Loading key={"loading"} />
                     </motion.div>
