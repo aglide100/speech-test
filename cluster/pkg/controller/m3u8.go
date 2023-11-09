@@ -4,7 +4,9 @@ import (
 	"html/template"
 	"math"
 	"net/http"
+	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/aglide100/speech-test/cluster/pkg/logger"
 	"go.uber.org/zap"
@@ -31,7 +33,18 @@ func (hdl *HlsController) ServePlaylistFile(w http.ResponseWriter, r *http.Reque
 
 	if r.URL.Query().Has("jobId") {
 		str := r.URL.Query().Get("jobId")
-		q, err := strconv.Atoi(str)
+
+		fileExtension := filepath.Ext(str)
+	
+		if fileExtension != ".m3u8" {
+			http.Error(w, "wrong approach", http.StatusInternalServerError)
+			return
+		}
+
+		fileName := filepath.Base(str)
+		name := strings.Replace(fileName, ".m3u8", "", -1)
+
+		q, err := strconv.Atoi(name)
 		if err != nil {
 			http.Error(w, "invalid id", http.StatusBadRequest)
         	return
@@ -54,12 +67,12 @@ func (hdl *HlsController) ServePlaylistFile(w http.ResponseWriter, r *http.Reque
 
 	max := 0.0
 	for _, val := range res {
-		logger.Info("Float", zap.Any("f", val.Duration))
+		// logger.Info("Float", zap.Any("f", val.Duration))
 		max = math.Max(max, float64(val.Duration))
 
 	}
 
-    logger.Info("jobId", zap.Any("j", jobId))
+    // logger.Info("jobId", zap.Any("j", jobId))
 
 	t := template.Must(template.New("m3u8").Parse(playlist))
 

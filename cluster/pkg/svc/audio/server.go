@@ -163,13 +163,15 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 				Msg: "Internal error",
 			}, err
 		}
-	
+		
 		err = s.db.SaveAudio(textId, in.Audio.Data, in.Audio.Sec, in.Job.Speaker)
 		if err != nil {
 			return &pb_svc_audio.Error{
 				Msg: "Internal error",
 			}, err
 		}
+
+		logger.Info("Saved audio", zap.Any("jobId", in.Job.Id))
 
 		if last {
 			ok := s.requests.RemoveRequest(result)
