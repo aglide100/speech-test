@@ -23,12 +23,13 @@ function Card({ data, idx, handler }: CardProps) {
         <motion.li
             layoutId={`card-root-${data.Id}`}
             className={classNames(
-                "relative p-6 h-72 w-full basis-full md:w-2/4 ",
+                "relative p-6 h-72 w-full basis-full md:w-1/4 z-0",
                 idx % 2 == 0 ? "md:pr-0" : "md:pl-0",
                 idx % 4 == 1 || idx % 4 == 0
                     ? "flex-grow-0 flex-shrink-0 md:basis-3/5"
                     : "flex-grow-0 flex-shrink-0 md:basis-2/5"
             )}
+            // style={{ zIndex: 10 }}
             onClick={(e) => {
                 e.preventDefault();
                 handler(data);
@@ -140,62 +141,58 @@ export function List() {
         }
     };
     return (
-        <LayoutGroup>
-            <AnimatePresence
-                mode="wait"
-                // onExitComplete={() => {
-                //     if (current != undefined) {
-                //         setJob(current.Id);
-                //     } else {
-                //         setJob(null);
-                //     }
-                // }}
-            >
+        <AnimatePresence
+            mode="wait"
+            // onExitComplete={() => {
+            //     if (current != undefined) {
+            //         setJob(current.Id);
+            //     } else {
+            //         setJob(null);
+            //     }
+            // }}
+        >
+            <LayoutGroup>
                 {!isLoading ? (
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key="content_component"
-                            animate={{ opacity: 1 }}
-                            initial={{ opacity: 0 }}
+                    <motion.div
+                        animate={{ opacity: 1 }}
+                        initial={{ opacity: 0 }}
+                    >
+                        <InfiniteScroll
+                            dataLength={data.length}
+                            next={() => fetchMore()}
+                            hasMore={!isLast}
+                            loader={<></>}
+                            style={{
+                                zIndex: 10,
+                                height: "100%",
+                                width: "100%",
+                                position: "absolute",
+                                left: 0,
+                                top: 0,
+                            }}
                         >
+                            <Overlay isOpen={current == null ? false : true} />
                             {current && (
-                                <>
-                                    <Overlay />
-                                    <Item
-                                        data={current}
-                                        handler={(id: string) => {
-                                            closeHandler();
-                                        }}
-                                    ></Item>
-                                </>
+                                <Item
+                                    data={current}
+                                    handler={(id: string) => {
+                                        closeHandler();
+                                    }}
+                                ></Item>
                             )}
-                            <InfiniteScroll
-                                dataLength={data.length}
-                                next={() => fetchMore()}
-                                hasMore={!isLast}
-                                loader={<></>}
-                                style={{
-                                    zIndex: 10,
-                                    height: "100%",
-                                    width: "100%",
-                                    position: "absolute",
-                                    left: 0,
-                                    top: 0,
-                                }}
-                            >
-                                <motion.ul className="relative top-20 list-none md:p-20 p-0 flex flex-wrap content-start md:-mt-10 mt-10">
-                                    {data.map((card, idx) => (
-                                        <Card
-                                            key={"key__card_" + card.Id}
-                                            data={card}
-                                            idx={idx + 1}
-                                            handler={openHandler}
-                                        />
-                                    ))}
-                                </motion.ul>
-                            </InfiniteScroll>
-                        </motion.div>
-                    </AnimatePresence>
+
+                            <motion.ul className="relative top-20 list-none md:p-20 p-0 flex flex-wrap content-start md:-mt-10 mt-10">
+                                {data.map((card, idx) => (
+                                    <Card
+                                        key={"key__card_" + card.Id}
+                                        data={card}
+                                        idx={idx + 1}
+                                        handler={openHandler}
+                                    />
+                                ))}
+                            </motion.ul>
+                        </InfiniteScroll>
+                    </motion.div>
                 ) : (
                     <motion.div
                         key="loading_component"
@@ -207,7 +204,7 @@ export function List() {
                         <Loading key={"loading"} />
                     </motion.div>
                 )}
-            </AnimatePresence>
-        </LayoutGroup>
+            </LayoutGroup>
+        </AnimatePresence>
     );
 }

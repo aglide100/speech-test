@@ -44,7 +44,7 @@ export default function Frame({ data, handler }: FrameProps) {
     }, [isLoading]);
 
     return (
-        <motion.div className="fixed z-20" layoutId={`card-root-${data.Id}`}>
+        <motion.div className="fixed z-30" layoutId={`card-root-${data.Id}`}>
             {!isLoading ? (
                 <Item
                     data={data}
@@ -94,7 +94,7 @@ function Item({ data, handler, m3u8Url, text }: ItemProps) {
     return (
         <div
             ref={rootRef}
-            className="fixed top-0 left-0 right-0 w-screen md:w-auto h-auto z-20 overflow-hidden pt-10 md:p-10 pb-40"
+            className="fixed top-0 left-0 right-0 w-screen md:w-auto h-auto z-30 overflow-hidden pt-10 md:p-10 pb-40"
         >
             <motion.div
                 ref={itemRef}
@@ -102,14 +102,13 @@ function Item({ data, handler, m3u8Url, text }: ItemProps) {
                 layoutId={`card-container-${data.Id}`}
                 initial={openSpring}
                 exit={closeSpring}
-                transition={{ duration: 0.5 }}
                 drag={"y"}
                 dragConstraints={constraints}
-                className="z-50 relative rounded-lg overflow-hidden w-screen md:w-3/4 h-full mx-auto border-solid border-1 border-black shadow-xl"
+                className="z-30 relative rounded-lg overflow-hidden w-screen md:w-3/4 h-full mx-auto border-solid border-1 border-black shadow-xl"
                 style={{ backgroundColor: "#1c1c1e", y: y }}
             >
                 <div
-                    className="text-white text-2xl absolute top-2 left-5 z-50"
+                    className="text-white text-2xl absolute top-2 left-5 z-20"
                     onClick={(e) => {
                         e.preventDefault();
                         handler(data.Id);
@@ -120,7 +119,7 @@ function Item({ data, handler, m3u8Url, text }: ItemProps) {
                 <Cover isOped={true} background={data.background} />
 
                 <motion.div
-                    className="absolute top-4 left-11 font-bold"
+                    className="absolute top-4 left-11 font-bold z-60"
                     layoutId={`title-container-${data.Id}`}
                 >
                     <Title id={data.Id} title={data.Title} />

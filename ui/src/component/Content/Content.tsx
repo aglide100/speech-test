@@ -28,7 +28,7 @@ export const Content = (props: ContentData) => {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.3 }}
         >
-            <audio ref={playerRef} controls></audio>
+            <audio className="w-full" ref={playerRef} controls></audio>
             <motion.div
                 layoutId={`card-${props.id}`}
                 className="w-auto h-auto mt-5 text-left text-white text-base leading-loose font-mono"

@@ -37,14 +37,14 @@ export function useScrollEvent(
     let touchStartY: number | null = null;
 
     const onTouchStart = (event: Event) => {
-        event.preventDefault();
+        // event.preventDefault();
 
         const te = event as TouchEvent;
         touchStartY = te.touches[0].clientY;
     };
 
     const onTouchMove = (event: Event) => {
-        event.preventDefault();
+        // event.preventDefault();
 
         const te = event as TouchEvent;
         if (touchStartY !== null) {
