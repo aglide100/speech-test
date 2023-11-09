@@ -29,7 +29,6 @@ function Card({ data, idx, handler }: CardProps) {
                     ? "flex-grow-0 flex-shrink-0 md:basis-3/5"
                     : "flex-grow-0 flex-shrink-0 md:basis-2/5"
             )}
-            // style={{ zIndex: 10 }}
             onClick={(e) => {
                 e.preventDefault();
                 handler(data);
@@ -141,16 +140,7 @@ export function List() {
         }
     };
     return (
-        <AnimatePresence
-            mode="wait"
-            // onExitComplete={() => {
-            //     if (current != undefined) {
-            //         setJob(current.Id);
-            //     } else {
-            //         setJob(null);
-            //     }
-            // }}
-        >
+        <AnimatePresence mode="wait">
             <LayoutGroup>
                 {!isLoading ? (
                     <motion.div
@@ -164,7 +154,6 @@ export function List() {
                             loader={<></>}
                             style={{
                                 zIndex: 10,
-                                height: "100%",
                                 width: "100%",
                                 position: "absolute",
                                 left: 0,
@@ -181,7 +170,7 @@ export function List() {
                                 ></Item>
                             )}
 
-                            <motion.ul className="relative top-20 list-none md:p-20 p-0 flex flex-wrap content-start md:-mt-10 mt-10">
+                            <motion.ul className="relative top-20 list-none md:p-20 p-0 flex flex-wrap content-start md:-mt-10 mt-10 mb-20">
                                 {data.map((card, idx) => (
                                     <Card
                                         key={"key__card_" + card.Id}
