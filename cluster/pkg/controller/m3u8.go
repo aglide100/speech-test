@@ -27,14 +27,6 @@ func (hdl *HlsController) ServePlaylistFile(w http.ResponseWriter, r *http.Reque
 
 	logger.Debug("uri", zap.Any("r", r.RequestURI))
 
-	// parts := strings.Split(r.URL.Path, "/")
-    // if len(parts) < 3 {
-    //     http.Error(w, "invalid url", http.StatusBadRequest)
-    //     return
-    // }
-
-    // jobId := strings.Replace(parts[2], ".m3u8", "", -1)
-
 	jobId := -1
 
 	if r.URL.Query().Has("jobId") {
@@ -64,7 +56,7 @@ func (hdl *HlsController) ServePlaylistFile(w http.ResponseWriter, r *http.Reque
 	for _, val := range res {
 		logger.Info("Float", zap.Any("f", val.Duration))
 		max = math.Max(max, float64(val.Duration))
-		max = math.Round(max)+1
+
 	}
 
     logger.Info("jobId", zap.Any("j", jobId))

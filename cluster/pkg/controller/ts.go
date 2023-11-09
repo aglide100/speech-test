@@ -26,7 +26,14 @@ func (hdl *HlsController) ServeTsFile(w http.ResponseWriter, r *http.Request) {
 	logger.Info("filename", zap.Any("name", fileName))
 
 	name := strings.Replace(fileName, ".ts", "", -1)
-	idx, err := strconv.Atoi(name)
+
+	res := strings.Split(name, "_")
+
+	textId := res[0]
+	// no := res[1]
+
+
+	idx, err := strconv.Atoi(textId)
 	if err != nil {
 		http.Error(w, "check file name", http.StatusInternalServerError)
 		return

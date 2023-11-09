@@ -67,19 +67,12 @@ func (pq *PriorityQueue) Remove(item *job.Job) (bool) {
 	Index := -1
 	found := false
 
-	// logger.Info("tmp in remove", zap.Any("tmp", tmp))
 	for idx, val := range tmp {
-		// logger.Info("val in remove", zap.Any("val", val))
 		if val.Value.Job.TextId == item.TextId {
 			Index = idx 
 			found = true
 			continue
 		}
-		// if reflect.DeepEqual(val.Value.Job, item) {
-		// 	Index = idx
-		// 	found = true
-		// 	continue
-		// }
 
 		if found {
 			tmp[idx].Index--
@@ -125,18 +118,6 @@ func (pq *PriorityQueue) Pop() (*Item, bool) {
 
 	return root, true
 }
-
-
-// func (pq *PriorityQueue) SearchAllocate(job job.Job) (*Item, bool) {
-
-// 	for _, val := range pq.queue {
-// 		if val.Value.Job == job {
-// 			return val, true
-// 		}
-// 	}
-
-// 	return nil, false
-// }
 
 func (pq *PriorityQueue) SetAllocate(allocate *Allocate) {
 	logger.Info("Set allocate", zap.Any("Allocate", allocate.Who.Who))
@@ -200,7 +181,7 @@ func (pq *PriorityQueue) bubbleUp(index int) {
 	for index > 0 {
 		parentIdx := (index - 1) /2
 		
-		if pq.queue[index].Value.When.Before(pq.queue[parentIdx].Value.When) {
+		if pq.queue[index].Value.When.After(pq.queue[parentIdx].Value.When) {
 			break
 		}
 
@@ -222,7 +203,7 @@ func (pq *PriorityQueue) bubbleDown(index int) {
 			durationLeftIdx := currentTime.Sub(pq.queue[leftIdx].Value.When)
 			durationMinIdx := currentTime.Sub(pq.queue[min].Value.When)
 			
-			if durationMinIdx > durationLeftIdx {
+			if durationMinIdx < durationLeftIdx {
 				min = leftIdx
 			}
 		}
@@ -231,7 +212,7 @@ func (pq *PriorityQueue) bubbleDown(index int) {
 			durationRightIdx := currentTime.Sub(pq.queue[rightIdx].Value.When)
 			durationMinIdx := currentTime.Sub(pq.queue[min].Value.When)
 			
-			if durationMinIdx > durationRightIdx {
+			if durationMinIdx < durationRightIdx {
 				min = rightIdx
 			}
 		}

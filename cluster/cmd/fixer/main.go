@@ -90,7 +90,7 @@ func realMain() error {
 			if len(items) >= 1 {
 				for _, val := range items {
 					val.Value.Who = runner.Runner{}
-					val.Value.When = time.Time{}
+					val.Value.When = time.Now()
 					waiting.Push(val)
 				}
 			}

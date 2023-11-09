@@ -194,12 +194,13 @@ func (s *AudioSrv) SendingResult(ctx context.Context, in *pb_svc_audio.SendingRe
 }
 
 func (s *AudioSrv) AddRequestInQueue(req *request.Request) error {
-	logger.Info("Added", zap.Any("req", req))
+	logger.Info("Added", zap.Any("jobId", req.JobId), zap.Any("remain jobs", len(req.Jobs)))
 	s.requests.AddRequest(req)
 
 	for _, job := range req.Jobs {
 		newAllocate := queue.Allocate{
 			Job: job,
+			When: time.Now(),
 		}
 
 		s.mu.Lock()
@@ -223,7 +224,7 @@ func (s *AudioSrv) AddIncomplete() error {
 	}
 
 	for _, val := range res {
-		logger.Info("id", zap.Any("val", val))
+		logger.Info("id", zap.Any("jobId", val.JobId))
 		jobs, err := s.db.GetIncompleteAudio(val.JobId, val.Speaker)
 		if err != nil {
 			logger.Info("Can't add job in req", zap.Error(err))

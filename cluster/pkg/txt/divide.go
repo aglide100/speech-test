@@ -8,7 +8,11 @@ import (
 )
 
 func DivideText(text string) ([]string, error) {
-	doc, _ := prose.NewDocument(text)
+	tmp := strings.ReplaceAll(text, "。", ". ")
+	tmp = strings.ReplaceAll(tmp, ".", ". ")
+	tmp = strings.ReplaceAll(tmp, ",", ", ")
+
+	doc, _ := prose.NewDocument(tmp)
 
 	var texts []string
 	sents := doc.Sentences()

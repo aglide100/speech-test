@@ -1,6 +1,8 @@
 package db
 
 import (
+	"strconv"
+
 	"github.com/aglide100/speech-test/cluster/pkg/job"
 	"github.com/aglide100/speech-test/cluster/pkg/logger"
 	"github.com/aglide100/speech-test/cluster/pkg/request"
@@ -40,32 +42,9 @@ func (db *Database) GetTextId(text, speaker string) (int, error) {
 	return textId, nil
 }
 
-
-// func (db *Database) GetTextSummaryFromJob(jobId int) (job.Job, error) {
-// 	const q = `
-// 	SELECT j.id, GROUP_CONCAT(t.value ORDER BY jt.no) AS text
-// 	FROM job AS j
-// 	    LEFT JOIN (
-// 	        SELECT job_id, text_id, no
-// 	        FROM job_text
-// 	        WHERE no = 0 OR no =1
-// 	    ) AS jt ON jt.job_id = j.id
-// 	    LEFT JOIN text AS t ON t.id = jt.text_id
-// 	WHERE j.id = ?
-// 	`
-
-// 	var j job.Job
-// 	err := db.conn.QueryRow(q, jobId).Scan(&j.Id, &j.Content)
-// 	if err != nil {
-// 		return j, err
-// 	}
-	
-// 	return j, nil
-// }
-
 func (db *Database) GetAudioIds(jobId int) ([]job.Audio, error) {
 	const q = `
-	SELECT a.text_id AS Name, a.sec AS Duration, jt.no
+	SELECT a.text_id AS tid, a.sec AS Duration, jt.no
 	FROM audio AS a 
 		LEFT JOIN job_text jt ON a.text_id = jt.text_id
 	WHERE jt.job_id = ?
@@ -84,8 +63,8 @@ func (db *Database) GetAudioIds(jobId int) ([]job.Audio, error) {
 		if err := rows.Scan(&a.Name, &a.Duration, &a.No); err != nil {
 			return nil, err
 		}
-		a.Name = a.Name + ".ts"
-		a.Duration = float32(float64(a.Duration / 1000))
+		num := strconv.Itoa(a.No)
+		a.Name = a.Name+ "_" + num + ".ts"
 
 		data = append(data, a)
 	}
